@@ -1,0 +1,7 @@
+include CHANGELOG.md
+include LICENSE
+include VERSION
+include dycall/desktop-app.json
+include dycall/icon.ico
+include dycall/localizations/*.msg
+include ext/*.*

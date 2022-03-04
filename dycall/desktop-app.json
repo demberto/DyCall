@@ -1,0 +1,8 @@
+{
+  "org_name": "demberto",
+  "modules": {
+    "dycall": {
+      "display_name": "DyCall"
+    }
+  }
+}
