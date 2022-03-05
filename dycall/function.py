@@ -42,8 +42,8 @@ class FunctionFrame(ttk.Frame):
         self.__status = status
         self.__is_outmode = is_outmode
         self.__is_running = is_running
-        self.__res_q = queue.Queue()    # type: ignore
-        self.__exc_q = queue.Queue()    # type: ignore
+        self.__res_q = queue.Queue()  # type: ignore
+        self.__exc_q = queue.Queue()  # type: ignore
         self.__args: list[list[str]] = []
 
         # Call convention

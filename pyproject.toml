@@ -6,6 +6,7 @@ requires = ["setuptools >= 43.0.0", "wheel"]
 profile = "black"
 
 [tool.mypy]
+exclude = "venv"
 ignore_missing_imports = true
 
 [tool.pylint.MASTER]
