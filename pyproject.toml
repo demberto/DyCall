@@ -12,9 +12,13 @@ ignore_missing_imports = true
 [tool.pylint.MASTER]
 jobs=0  # Faster
 
+[tool.pylint.DESIGN]
+max-statements = 60
+
 [tool.pylint.'MESSAGE_CONTROL']
 disable = [
   "invalid-name",
+  "logging-too-many-args",
   "missing-module-docstring",
   "missing-class-docstring",
   "missing-function-docstring",

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import logging
 
 import ttkbootstrap as tk
@@ -30,7 +32,7 @@ class ExportsFrame(ttk.Labelframe):
         self.__selected_export = export
         self.__output = output
         self.__status = status
-        self.__is_loaded = is_loaded
+        self.__is_loaded = is_loaded  # pylint: disable=unused-private-member # TODO
         self.__is_native = is_native
         self.__is_reinitialised = is_reinitialised
         self.__exports = exports

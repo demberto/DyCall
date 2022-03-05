@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import platform
-from ctypes import create_unicode_buffer, windll
+from ctypes import create_unicode_buffer
 
 try:
-    from typing import Final
+    from ctypes import windll
+except ImportError:
+    pass
+
+try:
+    from typing import Final  # type: ignore
 except ImportError:
     from typing_extensions import Final  # type: ignore
 
@@ -11,9 +18,7 @@ import cxxfilt
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
 
-#
 # * Demangling
-#
 
 os = platform.system()
 BUFSIZE: Final = 1000  # That should probably be enough
@@ -52,9 +57,7 @@ def demangle(exp: str) -> str:
         raise DemangleError from e
 
 
-#
 # * Custom widgets
-#
 
 
 class CopyButton(ttk.Button):  # pylint: disable=too-many-ancestors
@@ -69,9 +72,7 @@ class CopyButton(ttk.Button):  # pylint: disable=too-many-ancestors
         self.clipboard_append(self.__copy_var.get())
 
 
-#
 # * Translations
-#
 
 # ! Translators should add the LCID and native form of the language below
 LCID2Lang: Final = {"en": "English", "hi": "हिन्दी", "mr": "मराठी"}

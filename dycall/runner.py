@@ -4,7 +4,12 @@ from __future__ import annotations
 import logging
 import queue
 import threading
-from ctypes import CDLL, CFUNCTYPE, WINFUNCTYPE, WinDLL
+from ctypes import CDLL, CFUNCTYPE
+
+try:
+    from ctypes import WINFUNCTYPE, WinDLL
+except ImportError:
+    pass
 
 from dycall.types import CallConvention, Marshaller, ParameterType, RunResult
 
