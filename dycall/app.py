@@ -93,7 +93,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.arch = platform.architecture()[0]
         self.title(self.default_title)
         self.minsize(width=450, height=600)
-        self.iconbitmap("dycall/dycall.ico")
+        self.iconbitmap("dycall/img/dycall.ico")
         self.cur_theme = tk.StringVar(value=config["theme"])
 
         # Set by picker
