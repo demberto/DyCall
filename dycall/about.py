@@ -2,7 +2,7 @@ import logging
 
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
-from ttkbootstrap.localization import MessageCatalog as MC
+from ttkbootstrap.localization import MessageCatalog as MsgCat
 
 log = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class AboutWindow(tk.Toplevel):
         )
         ll = ttk.Label(
             self,
-            text=MC.translate("DyCall is distributed under the MIT license"),
+            text=MsgCat.translate("DyCall is distributed under the MIT license"),
             font=tk.font.Font(size=9),
         )
         ll.place(relx=0.5, rely=1, anchor="s")

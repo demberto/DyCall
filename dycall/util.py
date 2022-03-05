@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 import platform
 from ctypes import create_unicode_buffer, windll
 
 try:
     from typing import Final
 except ImportError:
-    from typing_extensions import Final
+    from typing_extensions import Final  # type: ignore
 
 import cxxfilt
 import ttkbootstrap as tk

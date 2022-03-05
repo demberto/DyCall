@@ -3,7 +3,7 @@ import logging
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
-from ttkbootstrap.localization import MessageCatalog as MC
+from ttkbootstrap.localization import MessageCatalog as MsgCat
 
 from dycall.util import CopyButton, DemangleError, PlatformUnsupportedError, demangle
 
@@ -29,7 +29,7 @@ class DemanglerWindow(tk.Toplevel):
         self.rowconfigure(0, minsize=45, weight=1)
         self.rowconfigure(1, minsize=45, weight=1)
 
-        self.ml = ml = ttk.Label(self, text=MC.translate("Name"))
+        self.ml = ml = ttk.Label(self, text=MsgCat.translate("Name"))
         self.me = me = ttk.Entry(self, textvariable=mangled_var)
         self.mb = mb = ttk.Button(self, text="Demangle", command=self.demangle)
         self.dl = dl = ttk.Label(self, text="Demangled")

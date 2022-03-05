@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import dataclasses
 import enum
+import typing
 from ctypes import (
     c_bool,
     c_char,
@@ -118,7 +120,7 @@ class ParameterType(enum.Enum):
     """Null terminated UTF-16 string."""
 
     @property
-    def ctype(self) -> _CType:
+    def ctype(self):
         return _StrToCtype[self.value]
 
 
@@ -141,18 +143,17 @@ class Marshaller:
 
     @staticmethod
     def ctype2str(p: _CType) -> str:
+        v = "NULL"
         if p is not None:
             val = p.value
             if isinstance(p, c_bool):
                 v = "True" if val else "False"
             elif isinstance(p, (c_char, c_char_p)):
+                if typing.TYPE_CHECKING:
+                    assert isinstance(val, bytes)  # nosec
                 v = val.decode("utf-8", errors="replace")
-            elif isinstance(p, (c_wchar, c_wchar_p)):
-                v = str(val)
             else:
-                v = val
-        else:
-            v = "NULL"
+                v = str(val)
         return v
 
     @staticmethod
@@ -163,6 +164,7 @@ class Marshaller:
             return str(p)
         return "NULL"
 
+    @typing.no_type_check
     @staticmethod
     def str2ctype(t: _CType, val: str) -> _CType:
         # pylint: disable-next=no-else-return
@@ -191,10 +193,10 @@ class RunResult:
     """Returned by `Runner` back to UI. This is useful especially in **OUT Mode**."""
 
     ret: _CType
-    args: tuple[_CType] = dataclasses.field(default_factory=tuple)
+    args: tuple[_CType] = dataclasses.field(default_factory=tuple)  # type: ignore
 
     @property
-    def values(self) -> tuple[Any]:
+    def values(self) -> list[Any]:
         values = []
         for arg in self.args:
             v = Marshaller.ctype2str(arg)

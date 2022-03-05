@@ -2,7 +2,7 @@
 import logging
 
 import ttkbootstrap as tk
-from ttkbootstrap.localization import MessageCatalog as MC
+from ttkbootstrap.localization import MessageCatalog as MsgCat
 
 from dycall.about import AboutWindow
 from dycall.demangler import DemanglerWindow
@@ -20,7 +20,7 @@ class TopMenu(tk.Menu):
 
         # Options
         self.mo = mo = tk.Menu()
-        self.add_cascade(menu=mo, label=MC.translate("Options"))
+        self.add_cascade(menu=mo, label=MsgCat.translate("Options"))
 
         # Options -> Language
         self.mol = mol = tk.Menu(mo)
@@ -30,7 +30,7 @@ class TopMenu(tk.Menu):
                 variable=self.lang_var,
                 command=self.change_lang,
             )
-        mo.add_cascade(menu=mol, label=MC.translate("Language"))
+        mo.add_cascade(menu=mol, label=MsgCat.translate("Language"))
 
         # Options -> Theme
         self.mot = mot = tk.Menu(mo)
@@ -38,30 +38,30 @@ class TopMenu(tk.Menu):
             mot.add_radiobutton(
                 label=label, variable=parent.cur_theme, command=parent.set_theme
             )
-        mo.add_cascade(menu=mot, label=MC.translate("Theme"))
+        mo.add_cascade(menu=mot, label=MsgCat.translate("Theme"))
 
         # Options -> OUT mode
         mo.add_checkbutton(label="OUT Mode", variable=outmode)
 
         # Tools
         self.mt = mt = tk.Menu()
-        self.add_cascade(menu=mt, label=MC.translate("Tools"))
+        self.add_cascade(menu=mt, label=MsgCat.translate("Tools"))
 
         # Tools -> Demangler
         mt.add_command(label="Demangler", command=lambda *_: DemanglerWindow(parent))
 
         # Help
         self.mh = mh = tk.Menu()
-        self.add_cascade(menu=mh, label=MC.translate("Help"))
+        self.add_cascade(menu=mh, label=MsgCat.translate("Help"))
 
         # Help -> About
         mh.add_command(
-            label=MC.translate("About"), command=lambda *_: AboutWindow(parent)
+            label=MsgCat.translate("About"), command=lambda *_: AboutWindow(parent)
         )
 
     def change_lang(self, *_):
         lc = self.locale_var
         lc.set(Lang2LCID[self.lang_var.get()])
-        MC.locale(lc.get())
+        MsgCat.locale(lc.get())
         self.parent.refresh()
-        log.info("Changed locale to '%s'", MC.locale())
+        log.info("Changed locale to '%s'", MsgCat.locale())

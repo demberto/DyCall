@@ -51,7 +51,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             lang (str, optional): The language used for displaying UI. Defaults to "".
             out_mode (bool, optional): Whether **OUT Mode** should be enabled.
                 Defaults to False.
-        """
+        """  # noqa: D403
         log.debug("Initialising")
         self.__rows_to_add = rows
         self.__export_names: list[str] = []
@@ -211,7 +211,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
     def destroy(self):
         """Warns the user if he tries to close when an operation is running.
         Tries to save the app settings and proceeds to close the app.
-        """
+        """  # noqa: D205
         # ! This does't work at all
         is_running = self.__is_running.get()
         log.debug("Called with is_running=%s", is_running)

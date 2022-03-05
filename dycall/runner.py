@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import logging
@@ -22,7 +23,7 @@ class Runner(threading.Thread):
         funcname: str,
     ) -> None:
         log.debug(
-            "Called with args={}, call_conv={}, returns={}, lib_path={}, funcname={}",
+            "Called with args=%s, call_conv=%s, returns=%s, lib_path=%s, funcname=%s",
             args,
             call_conv,
             returns,
@@ -37,7 +38,7 @@ class Runner(threading.Thread):
             self.__handle = WinDLL(lib_path)
             self.__functype = WINFUNCTYPE
         else:
-            self.__handle = CDLL(lib_path)
+            self.__handle = CDLL(lib_path)  # type: ignore
             self.__functype = CFUNCTYPE
         self.__funcname = funcname
         self.__parse_args(args)
