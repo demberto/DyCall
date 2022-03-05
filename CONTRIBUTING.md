@@ -1,5 +1,35 @@
 # Contributor's Guide
 
+To get started:
+
+1. Clone the repo
+
+   ```shell
+   git clone https://github.com/demberto/DyCall
+   ```
+
+2. Browse to the newly created folder
+
+   ```shell
+   cd DyCall
+   ```
+
+3. Optionally setup a virtual environment:
+
+   ```shell
+   python -m venv .
+   ```
+
+4. Install dependencies:
+
+   ```shell
+   python -m pip install -r dev-requirements.txt -c dev-constraints.txt
+   ```
+
+5. Install [tbump][tbump]. I don't include it in dependencies because it recommends
+   using `pipx` for installation. You can choose the installation method you want. I
+   used `pipx`.
+
 ## Coding Conventions
 
 I have tried to follow an OO approach to DyCall. This might be best explained by the
@@ -26,6 +56,9 @@ entry_var.set("Entry")
 This allows the top level window class `App` to create such state variables and pass
 them to the sub-frames via their constructors. This allows for a sub frame to change the
 contents of a widget inside another subframe without accessing the widget directly.
+
+Apart from that, I have used LF line endings everywhere and tried to enforce it
+everywhere I can - `.editorconfig`, `.prettierrc.yaml` and `.gitattributes`
 
 ## Adding translations
 
@@ -97,3 +130,4 @@ I think 2 themes are enough, DyCall is a utility tool after all.
 [dycall-util-py]: https://github.com/demberto/DyCall/blob/master/dycall/util.py
 [lcid]: https://www.tcl.tk/man/tcl8.7/TclCmd/msgcat.html#M23
 [so-17470842]: https://stackoverflow.com/a/17470842
+[tbump]: https://github.com/dmerejkowsky/tbump
