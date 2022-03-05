@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # pylint: disable=too-many-locals
 
 from __future__ import annotations
@@ -41,8 +42,8 @@ class FunctionFrame(ttk.Frame):
         self.__status = status
         self.__is_outmode = is_outmode
         self.__is_running = is_running
-        self.__que = queue.Queue()
-        self.__exc = queue.Queue()
+        self.__res_q = queue.Queue()    # type: ignore
+        self.__exc_q = queue.Queue()    # type: ignore
         self.__args: list[list[str]] = []
 
         # Call convention
@@ -211,7 +212,7 @@ class FunctionFrame(ttk.Frame):
 
     def process_queue(self):
         try:
-            exc = self.__exc.get_nowait()
+            exc = self.__exc_q.get_nowait()
         except queue.Empty:
             pass
         else:
@@ -219,7 +220,7 @@ class FunctionFrame(ttk.Frame):
             raise exc
 
         try:
-            result = self.__que.get_nowait()
+            result = self.__res_q.get_nowait()
         except queue.Empty:
             self.after(100, self.process_queue)
         else:
@@ -242,7 +243,6 @@ class FunctionFrame(ttk.Frame):
             self.__status.set(status)
             self.activate_copy_button(bootstyle="danger")
             self.rb.configure(state="normal")
-            self.bind_run_button()
 
         ret_type = self.__returns.get()
         self.__status.set("Running...")
@@ -251,8 +251,8 @@ class FunctionFrame(ttk.Frame):
 
         try:
             thread = Runner(
-                self.__exc,
-                self.__que,
+                self.__exc_q,
+                self.__res_q,
                 self.__args,
                 self.__call_conv.get(),
                 ret_type,
@@ -261,6 +261,7 @@ class FunctionFrame(ttk.Frame):
             )
         except Exception as e:  # pylint: disable=broad-except
             handle_exc(e, "Invalid argument(s)")
+            self.bind_run_button()
             return
         self.__is_running.set(True)
         thread.start()
@@ -270,6 +271,7 @@ class FunctionFrame(ttk.Frame):
         except Exception as e:  # pylint: disable=broad-except
             handle_exc(e, "An error occured")
         self.__is_running.set(False)
+        self.bind_run_button()
 
     # * Helpers
     def activate_copy_button(self, state="normal", bootstyle="default"):
@@ -277,7 +279,9 @@ class FunctionFrame(ttk.Frame):
 
     def bind_run_button(self):
         # pylint: disable=attribute-defined-outside-init
-        self.__run_binding = self.bind_all("<F5>", self.run)
+        log.debug("Run button binded to F5")
+        self.rb.bind_all("<F5>", self.run)
 
     def unbind_run_button(self):
-        self.unbind("<F5>", self.__run_binding)
+        log.debug("Run button unbinded")
+        self.rb.unbind_all("<F5>")
