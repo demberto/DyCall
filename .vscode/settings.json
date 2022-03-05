@@ -1,4 +1,4 @@
 {
   "python.formatting.provider": "black",
-  "python.terminal.activateEnvironment": true
+  "python.terminal.activateEnvironment": true // https://stackoverflow.com/a/65650691
 }
