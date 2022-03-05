@@ -11,6 +11,8 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
       - id: requirements-txt-fixer
+      - id: fix-encoding-pragma
+      - id: check-vcs-permalinks
       # TODO file-contents-sorter for translations
   - repo: https://github.com/psf/black
     rev: 22.1.0
@@ -39,3 +41,7 @@ repos:
     rev: 1.7.4
     hooks:
       - id: bandit
+  - repo: https://github.com/asottile/setup-cfg-fmt
+    rev: v1.20.0
+    hooks:
+      - id: setup-cfg-fmt
