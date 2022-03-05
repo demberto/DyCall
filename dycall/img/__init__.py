@@ -1,1 +1,1 @@
-"""Contains the images used by DyCall"""
+"""Contains the images used by DyCall."""

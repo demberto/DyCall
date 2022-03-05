@@ -19,23 +19,19 @@ BUFSIZE: Final = 1000  # That should probably be enough
 
 
 class DemangleError(Exception):
-    """Raised when demangling fails either due
-    to an invalid name or an internal error."""
+    """Raised when demangling fails due to an invalid name or an internal error."""
 
 
 class PlatformUnsupportedError(Exception):
-    """Raised when the OS is neither Windows
-    nor has a libc and libcxx library."""
+    """Raised when the OS is neither Windows nor has a libc and libcxx library."""
 
 
 def demangle(exp: str) -> str:
-    """
-    On Linux & MacOS, cxxfilt is used, which internally uses `libcxx.__cxa_demangle`.
+    """On Linux & MacOS, cxxfilt is used, which internally uses `libcxx.__cxa_demangle`.
 
     On Windows, the DbgHelp API function `UnDecorateSymbolNameW` is used.
     MSDN: https://docs.microsoft.com/windows/win32/api/dbghelp/nf-dbghelp-undecoratesymbolnamew
-    """
-
+    """  # noqa: E501
     if os == "Windows":
         if exp.startswith("?"):
             buf = create_unicode_buffer(BUFSIZE)

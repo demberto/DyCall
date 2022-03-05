@@ -194,7 +194,7 @@ class FunctionFrame(ttk.Frame):
         else:
             try:
                 t.delete_dropdown(row, 1)
-            except:
+            except:  # noqa: E722
                 t.set_cell_data(row, 1)
 
         if type_ == "void":

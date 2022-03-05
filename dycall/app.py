@@ -30,13 +30,15 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         ret: str = "",
         rows: int = 0,
         lang: str = "",
-        out_mode: bool = "",
+        out_mode: bool = False,
         **kwargs,
     ) -> None:
-        """DyCall entry point. Certain arguments can be passed from the command
-        line directly. These arguments will be used to initalise the interface.
-        This helps achieve some automation and it also saves my time while testing.
-        The default arguments aren't the default values used by DyCall interface.
+        """DyCall entry point.
+
+        Certain arguments can be passed from the command line directly. These
+        arguments will be used to initalise the interface. This helps achieve
+        some automation and it also saves my time while testing. The default
+        arguments aren't the default values used by DyCall interface.
 
         Args:
             conv (str, optional): Calling convention. Defaults to "".
@@ -45,9 +47,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             ret (str, optional): Return type. See `ParameterType`. Defaults to "".
             rows (int, optional): Number of empty rows to add to arguments table.
                 Defaults to 0.
-            lang (str, optional): _description_. Defaults to "".
-        """
-
+            lang (str, optional): The language used for displaying UI. Defaults to "".
+            out_mode (bool, optional): Whether **OUT Mode** should be enabled.
+                Defaults to False.
+        """  # noqa: D403
         log.debug("Initialising")
         self.rows_to_add = rows
 
@@ -124,9 +127,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         return f"DyCall ({self.arch})"
 
     def init_widgets(self):
-        """Widgets are created and packed here. Separated from
-        `__init__` because `refresh` requires this method too."""
+        """Sub-widgets are created and packed here.
 
+        Separated from `__init__` because `refresh` requires this method too.
+        """
         self.top_menu = tm = TopMenu(
             self,
             self.use_out_mode,
@@ -177,10 +181,11 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self["menu"] = tm
 
     def refresh(self):
-        """Called when the interace language is changed to reflect back the changes.
-        TtkBootstrap doesn't let me destroy and reinitialise `App` so I found out
-        this cool solution."""
+        """Called when the interace language is changed to reflect the changes.
 
+        TtkBootstrap doesn't let me destroy and reinitialise
+        `App` so I found out this cool solution.
+        """
         self.top_menu.destroy()
         self.picker.destroy()
         self.exports.destroy()
@@ -192,8 +197,8 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
 
     def destroy(self):
         """Warns the user if he tries to close when an operation is running.
-        Tries to save the app settings and proceeds to close the app."""
-
+        Tries to save the app settings and proceeds to close the app.
+        """  # noqa: D205, D209
         # ! This does't work at all
         is_running = self.is_running.get()
         log.debug("Called with is_running={}", is_running)
@@ -238,14 +243,15 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         return f"+{xpos}+{ypos}"
 
     def set_theme(self, table_only=False):
-        """Set's the theme used by DyCall. Used by `refresh` with `table_only`
-        set to `True`, because reinitialising the widgets caused the table
-        theme to be set again, rest of the widgets don't need this.
+        """Set's the theme used by DyCall.
+
+        Used by `refresh` with `table_only` set to `True`, because reinitialising
+        the widgets caused the table theme to be set again, rest of the widgets
+        don't need this.
 
         Args:
             table_only (bool, optional): Defaults to False.
         """
-
         log.debug("Setting theme, table_only={}", table_only)
 
         def go_dark():
