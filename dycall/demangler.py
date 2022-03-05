@@ -19,7 +19,7 @@ class DemanglerWindow(tk.Toplevel):
 
         super().__init__(title="Demangler")
         self.withdraw()
-        self.iconbitmap("dycall/dycall.ico")
+        self.iconbitmap("dycall/img/dycall.ico")
         self.minsize(300, 100)
         self.geometry("500x100")
 

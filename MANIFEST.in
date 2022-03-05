@@ -1,7 +1,15 @@
-include CHANGELOG.md
-include LICENSE
+include *.md
+include *.txt
+include *.yaml
+include .editorconfig
+include .pre-commit-config.yaml
+include .vscode/settings.json
+include constraints-dev.txt
+indlude requirements-dev.txt
+include requirements.txt
+include tox.ini
 include VERSION
 include dycall/desktop-app.json
-include dycall/icon.ico
-include dycall/localizations/*.msg
+include dycall/img/*.*
 include ext/*.*
+recursive-include dycall *.msg

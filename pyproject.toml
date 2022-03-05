@@ -8,6 +8,9 @@ profile = "black"
 [tool.mypy]
 ignore_missing_imports = true
 
+[tool.pylint.MASTER]
+jobs=0  # Faster
+
 [tool.pylint.'MESSAGE_CONTROL']
 disable = [
   "invalid-name",
@@ -18,10 +21,16 @@ disable = [
   "too-many-instance-attributes",
   "too-many-arguments"
 ]
-generated_members = "lief.*"
 
-[tool.pylint.'LOGGING']
+[tool.pylint.LOGGING]
 logging-format-style = "new"
+
+# duplicate-code false positive: https://stackoverflow.com/a/30007053
+[tool.pylint.SIMILARITIES]
+ignore-imports = "yes"
+
+[tool.pylint.TYPECHECK]
+generated-members = ["lief.*"]
 
 [tool.tbump]
 # Uncomment this if your project is hosted on GitHub:

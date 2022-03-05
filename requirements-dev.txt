@@ -1,0 +1,11 @@
+bandit
+flake8
+flake8-docstrings
+flake8-typing-imports
+isort
+mypy
+pre-commit
+pylint
+setup-cfg-fmt
+tox
+yesqa

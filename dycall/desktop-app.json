@@ -2,7 +2,9 @@
   "org_name": "demberto",
   "modules": {
     "dycall": {
-      "display_name": "DyCall"
+      "display_name": "DyCall",
+      "icon": "img/dycall.png",
+      "winicon": "img/dycall.ico"
     }
   }
 }

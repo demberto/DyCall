@@ -1,3 +1,6 @@
 {
-  "python.formatting.provider": "black"
+  "python.formatting.provider": "black",
+  // Activate venv on startup: https://stackoverflow.com/a/66281531/5541355
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "python.defaultInterpreterPath": "~/venv/bin/python"
 }
