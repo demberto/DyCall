@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 import os
 import platform
@@ -50,9 +51,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             lang (str, optional): The language used for displaying UI. Defaults to "".
             out_mode (bool, optional): Whether **OUT Mode** should be enabled.
                 Defaults to False.
-        """  # noqa: D403
+        """
         log.debug("Initialising")
-        self.rows_to_add = rows
+        self.__rows_to_add = rows
+        self.__export_names: list[str] = []
 
         # No need to save a preference in the config when
         # DyCall is passed with it from the command line.
@@ -94,7 +96,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         MessageCatalog.locale(locale_to_use)
 
         self.arch = platform.architecture()[0]
-        self.title(self.default_title)
+        self.title(self.__default_title)
         self.minsize(width=450, height=600)
         self.iconbitmap("dycall/img/dycall.ico")
         self.cur_theme = tk.StringVar(value=config["theme"])
@@ -105,16 +107,18 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         # Modern menus
         self.option_add("*tearOff", False)
 
-        self.is_native = tk.BooleanVar()
-        self.is_running = tk.BooleanVar(value=False)
-        self.use_out_mode = tk.BooleanVar(value=out_mode_or_not)
-        self.locale = tk.StringVar(value=locale_to_use)
-        self.library_path = tk.StringVar(value=lib)
-        self.export_name = tk.StringVar(value=exp)
-        self.call_convention = tk.StringVar(value=conv)
-        self.return_type = tk.StringVar(value=ret)
-        self.output_text = tk.StringVar()
-        self.status_text = tk.StringVar(value="Choose a library")
+        self.__is_native = tk.BooleanVar()
+        self.__is_running = tk.BooleanVar(value=False)
+        self.__is_loaded = tk.BooleanVar(value=False)
+        self.__is_reinitialised = tk.BooleanVar(value=False)
+        self.__use_out_mode = tk.BooleanVar(value=out_mode_or_not)
+        self.__locale = tk.StringVar(value=locale_to_use)
+        self.__library_path = tk.StringVar(value=lib)
+        self.__selected_export = tk.StringVar(value=exp)
+        self.__call_convention = tk.StringVar(value=conv)
+        self.__return_type = tk.StringVar(value=ret)
+        self.__output_text = tk.StringVar()
+        self.__status_text = tk.StringVar(value="Choose a library")
 
         self.geometry(config["geometry"])
         self.deiconify()
@@ -123,54 +127,61 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         log.debug("App initialised")
 
     @property
-    def default_title(self) -> str:
+    def __default_title(self) -> str:
         return f"DyCall ({self.arch})"
 
     def init_widgets(self):
         """Sub-widgets are created and packed here.
 
         Separated from `__init__` because `refresh` requires this method too.
+        These widgets are purposely public to allow subframes to access each
+        other's widgets through their `parent` attribute when necessary.
         """
         self.top_menu = tm = TopMenu(
             self,
-            self.use_out_mode,
-            self.locale,
+            self.__use_out_mode,
+            self.__locale,
         )
         self.output = of = OutputFrame(
             self,
-            self.output_text,
+            self.__output_text,
         )
         self.status_bar = sf = StatusBarFrame(
             self,
-            self.status_text,
+            self.__status_text,
         )
         self.function = ff = FunctionFrame(
             self,
-            self.call_convention,
-            self.return_type,
-            self.library_path,
-            self.export_name,
-            self.output_text,
-            self.status_text,
-            self.use_out_mode,
-            self.is_running,
-            self.rows_to_add,
+            self.__call_convention,
+            self.__return_type,
+            self.__library_path,
+            self.__selected_export,
+            self.__output_text,
+            self.__status_text,
+            self.__use_out_mode,
+            self.__is_running,
+            self.__rows_to_add,
         )
         self.exports = ef = ExportsFrame(
             self,
-            self.export_name,
-            self.output_text,
-            self.status_text,
-            self.is_native,
+            self.__selected_export,
+            self.__output_text,
+            self.__status_text,
+            self.__is_loaded,
+            self.__is_native,
+            self.__is_reinitialised,
+            self.__export_names,
         )
         self.picker = pf = PickerFrame(
             self,
-            self.library_path,
-            self.export_name,
-            self.output_text,
-            self.status_text,
-            self.is_native,
-            self.default_title,
+            self.__library_path,
+            self.__selected_export,
+            self.__output_text,
+            self.__status_text,
+            self.__is_loaded,
+            self.__is_native,
+            self.__default_title,
+            self.__export_names,
         )
 
         pf.pack(fill="x", padx=5)
@@ -183,9 +194,11 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
     def refresh(self):
         """Called when the interace language is changed to reflect the changes.
 
-        TtkBootstrap doesn't let me destroy and reinitialise
-        `App` so I found out this cool solution.
+        TtkBootstrap doesn't let me destroy and reinitialise `App` so I found
+        out this cool solution. Sets reinitalised flag so that re-demangling is
+        prevented in `self.exports`.
         """
+        self.__is_reinitialised.set(True)
         self.top_menu.destroy()
         self.picker.destroy()
         self.exports.destroy()
@@ -198,11 +211,11 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
     def destroy(self):
         """Warns the user if he tries to close when an operation is running.
         Tries to save the app settings and proceeds to close the app.
-        """  # noqa: D205, D209
+        """
         # ! This does't work at all
-        is_running = self.is_running.get()
-        log.debug("Called with is_running={}", is_running)
-        if self.is_running.get():
+        is_running = self.__is_running.get()
+        log.debug("Called with is_running=%s", is_running)
+        if self.__is_running.get():
             if (
                 Messagebox.show_question(
                     "An operation is running, do you really want to quit?",
@@ -216,9 +229,9 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         config["theme"] = self.cur_theme.get()
         config["geometry"] = self.geometry()
         if not self.__dont_save_out_mode:
-            config["out_mode"] = self.use_out_mode.get()
+            config["out_mode"] = self.__use_out_mode.get()
         if not self.__dont_save_locale:
-            config["locale"] = self.locale.get()
+            config["locale"] = self.__locale.get()
         try:
             config.save()
         except IOError as e:
@@ -252,7 +265,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         Args:
             table_only (bool, optional): Defaults to False.
         """
-        log.debug("Setting theme, table_only={}", table_only)
+        log.debug("Setting theme, table_only=%s", table_only)
 
         def go_dark():
             if not table_only:
@@ -273,4 +286,4 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         elif theme == "Dark":
             go_dark()
 
-        log.debug("Theme '{}' set", theme)
+        log.debug("Theme '%s' set", theme)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 
 import ttkbootstrap as tk
@@ -63,4 +64,4 @@ class TopMenu(tk.Menu):
         lc.set(Lang2LCID[self.lang_var.get()])
         MC.locale(lc.get())
         self.parent.refresh()
-        log.info("Changed locale to '{}'", MC.locale())
+        log.info("Changed locale to '%s'", MC.locale())
