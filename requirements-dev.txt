@@ -5,6 +5,7 @@ flake8-typing-imports
 isort
 mypy
 pre-commit
+pylint
 setup-cfg-fmt
 tox
 yesqa
