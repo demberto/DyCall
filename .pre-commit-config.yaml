@@ -6,8 +6,12 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
+      - id: check-json
+      - id: check-toml
       - id: check-yaml
       - id: check-added-large-files
+      - id: requirements-txt-fixer
+      # TODO file-contents-sorter for translations
   - repo: https://github.com/psf/black
     rev: 22.1.0
     hooks:
@@ -21,6 +25,10 @@ repos:
     rev: v2.5.1
     hooks:
       - id: prettier
+  - repo: https://github.com/asottile/yesqa
+    rev: v1.3.0
+    hooks:
+      - id: yesqa
   - repo: https://github.com/pycqa/flake8
     rev: 4.0.1
     hooks:
