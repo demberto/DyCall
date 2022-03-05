@@ -5,6 +5,9 @@ requires = ["setuptools >= 43.0.0", "wheel"]
 [tool.isort]
 profile = "black"
 
+[tool.mypy]
+ignore_missing_imports = true
+
 [tool.pylint.'MESSAGE_CONTROL']
 disable = [
   "invalid-name",
@@ -15,7 +18,7 @@ disable = [
   "too-many-instance-attributes",
   "too-many-arguments"
 ]
-generated-members = "lief.*"
+generated_members = "lief.*"
 
 [tool.pylint.'LOGGING']
 logging-format-style = "new"

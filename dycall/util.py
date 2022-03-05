@@ -1,6 +1,11 @@
 import platform
 from ctypes import create_unicode_buffer, windll
 
+try:
+    from typing import Final
+except ImportError:
+    from typing_extensions import Final
+
 import cxxfilt
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
@@ -10,7 +15,7 @@ from ttkbootstrap import ttk
 #
 
 os = platform.system()
-BUFSIZE = 1000  # That should probably be enough
+BUFSIZE: Final = 1000  # That should probably be enough
 
 
 class DemangleError(Exception):
@@ -72,9 +77,9 @@ class CopyButton(ttk.Button):  # pylint: disable=too-many-ancestors
 #
 
 # ! Translators should add the LCID and native form of the language below
-LCID2Lang = {"en": "English", "hi": "हिन्दी", "mr": "मराठी"}
+LCID2Lang: Final = {"en": "English", "hi": "हिन्दी", "mr": "मराठी"}
 
-LCIDS = LCID2Lang.keys()
+LCIDS: Final = LCID2Lang.keys()
 
 # Dictionary inversion: https://stackoverflow.com/a/66464410
-Lang2LCID = {v: k for k, v in LCID2Lang.items()}
+Lang2LCID: Final = {v: k for k, v in LCID2Lang.items()}

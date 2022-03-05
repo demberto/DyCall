@@ -13,9 +13,10 @@ from dycall.util import LCIDS
 
 desktop_app.set_process_appid("dycall")
 
+
 # https://stackoverflow.com/a/18700817
-def positive_int(i: str) -> int:
-    i = int(i)
+def positive_int(s: str) -> int:
+    i = int(s)
     if i < 0:
         raise argparse.ArgumentTypeError("A positive number is required")
     return i

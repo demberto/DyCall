@@ -43,7 +43,7 @@ class FunctionFrame(ttk.Frame):
         self.__is_running = is_running
         self.__que = queue.Queue()
         self.__exc = queue.Queue()
-        self.__args = []
+        self.__args: list[list[str]] = []
 
         # Call convention
         cg = ttk.Labelframe(self, text="Calling Convention")
