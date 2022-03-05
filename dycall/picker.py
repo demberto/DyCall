@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import ctypes.util
@@ -23,26 +24,30 @@ class PickerFrame(ttk.Labelframe):
         selected_export: tk.StringVar,
         output: tk.StringVar,
         status: tk.StringVar,
+        is_loaded: tk.BooleanVar,
         is_native: tk.BooleanVar,
         default_title: str,
+        exports: list[str],
     ):
         log.debug("Initialising")
 
         super().__init__(text="Library")
-        self.parent = parent
-        self.lib_path = lib_path
-        self.selected_export = selected_export
-        self.output = output
-        self.status = status
-        self.is_native = is_native
-        self.window_title = default_title
+        self.__parent = parent
+        self.__lib_path = lib_path
+        self.__selected_export = selected_export
+        self.__output = output
+        self.__status = status
+        self.__default_title = default_title
+        self.__is_loaded = is_loaded
+        self.__is_native = is_native
+        self.__exports = exports
         self.os_name = platform.system()
         is_file = self.register(self.validate)
 
         # Library path entry
         self.le = le = ttk.Entry(
             self,
-            textvariable=self.lib_path,
+            textvariable=self.__lib_path,
             validate="focusout",
             validatecommand=(is_file, "%P"),
         )
@@ -62,16 +67,16 @@ class PickerFrame(ttk.Labelframe):
 
     def on_enter(self, *_) -> None:
         # Without this, a false Export not found occurs
-        self.selected_export.set("")
+        self.__selected_export.set("")
         self.load()
         self.le.icursor("end")
 
     def validate(self, s) -> bool:
         ret = pathlib.Path(s).is_file()
-        exports_frame = self.parent.exports
-        function_frame = self.parent.function
+        exports_frame = self.__parent.exports
+        function_frame = self.__parent.function
         if ret:
-            if s == self.lib_path.get():
+            if s == self.__lib_path.get():
                 exports_frame.set_state(True)
             else:
                 # TODO Changing the library path directly doesn't invoke this
@@ -94,35 +99,37 @@ class PickerFrame(ttk.Labelframe):
         )
         if file:
             # Without this, a false Export not found occurs
-            self.selected_export.set("")
+            self.__selected_export.set("")
             self.load(True, file)
 
     def load(self, dont_search=False, path=None) -> None:
         def failure():
-            self.status.set("Load failed")
+            self.__is_loaded.set(False)
+            self.__status.set("Load failed")
             Messagebox.show_error("Load failed", f"Failed to load binary {path}")
 
         if path:
-            self.lib_path.set(path)
+            self.__lib_path.set(path)
         else:
-            path = self.lib_path.get()
+            path = self.__lib_path.get()
         if not dont_search:
             abspath = ctypes.util.find_library(path)
             if abspath is not None:
                 path = abspath
-                self.lib_path.set(path)
-        self.output.set("")
+                self.__lib_path.set(path)
+        self.__output.set("")
 
         # * LIEF doesn't raise exceptions, instead returns the exception object
         lib = lief.parse(path)
-        if isinstance(lib, lief.lief_errors):
+        if not isinstance(lib, lief.Binary):
             failure()
             return
-        self.parent.lib = lib
-        self.status.set("Loaded successfully")
+        self.__parent.lib = lib
+        self.__is_loaded.set(True)
+        self.__status.set("Loaded successfully")
 
         lib_name = str(pathlib.Path(path).name)
-        self.parent.title(f"{self.window_title} - {lib_name}")
+        self.__parent.title(f"{self.__default_title} - {lib_name}")
 
         os = self.os_name
         fmt = lib.format
@@ -134,14 +141,14 @@ class PickerFrame(ttk.Labelframe):
             or (os == "Darwin" and fmt == fmts.MACHO)
             or (os == "Linux" and fmt == fmts.ELF)
         ):
-            self.is_native.set(True)
+            self.__is_native.set(True)
         else:
             Messagebox.show_warning(
                 "Not a native binary",
                 f"{path} is not a native binary. You can view "
                 "the exported functions but cannot call them.",
             )
-            self.is_native.set(False)
+            self.__is_native.set(False)
 
-        exports = tuple(e.name for e in lib.exported_functions)
-        self.parent.exports.set_cb_values(exports)
+        self.__exports.extend([e.name for e in lib.exported_functions])
+        self.__parent.exports.set_cb_values()

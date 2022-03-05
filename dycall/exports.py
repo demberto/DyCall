@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 
 import ttkbootstrap as tk
@@ -17,7 +18,10 @@ class ExportsFrame(ttk.Labelframe):
         export: tk.StringVar,
         output: tk.StringVar,
         status: tk.StringVar,
+        is_loaded: tk.BooleanVar,
         is_native: tk.BooleanVar,
+        is_reinitialised: tk.BooleanVar,
+        exports: list[str],
     ):
         log.debug("Initalising")
 
@@ -26,7 +30,10 @@ class ExportsFrame(ttk.Labelframe):
         self.__selected_export = export
         self.__output = output
         self.__status = status
+        self.__is_loaded = is_loaded
         self.__is_native = is_native
+        self.__is_reinitialised = is_reinitialised
+        self.__exports = exports
 
         self.cb = cb = ttk.Combobox(self, state="disabled", textvariable=export)
         cb.bind("<<ComboboxSelected>>", self.cb_selected)
@@ -35,7 +42,11 @@ class ExportsFrame(ttk.Labelframe):
         log.debug("Initialised")
 
     def cb_selected(self, *_):
-        log.debug("{} selected", self.__selected_export.get())
+        """Callback to handle clicks on **Exports** combobox.
+
+        Resets **Output** and activates/deactivates `FunctionFrame`.
+        """
+        log.debug("%s selected", self.__selected_export.get())
         self.__output.set("")
         func_frame = self.__parent.function
         if self.__is_native.get():
@@ -44,45 +55,59 @@ class ExportsFrame(ttk.Labelframe):
             func_frame.set_state(False)
 
     def set_state(self, activate=True):
-        log.debug("Called with activate={}", activate)
+        """Activates/deactivates **Exports** combobox.
+
+        Args:
+            activate (bool, optional): Activated when True, deactivated when
+                False. Defaults to True.
+        """
+        log.debug("Called with activate=%s", activate)
         state = "readonly" if activate else "disabled"
         self.cb.configure(state=state)
 
-    def set_cb_values(self, exports):
+    def set_cb_values(self):
+        """Demangles and sets the export names to the **Exports** combobox."""
+        exports = self.__exports
         num_exports = len(exports)
-        log.info("Found {} exports", num_exports)
+        log.info("Found %d exports", num_exports)
+        if not self.__is_reinitialised.get():
+            demangled = []
+            failed = []
+            for exp in exports:
+                try:
+                    log.debug("Demangling %s", exp)
+                    d = demangle(exp)
+                except DemangleError as exc:
+                    log.exception(exc)
+                    failed.append(exp)
+                except PlatformUnsupportedError as exc:
+                    log.exception(exc)
+                    failed = exports
+                    break
+                else:
+                    demangled.append(d)
+            export_names = demangled + failed
+            self.__exports = export_names
+            if failed:
+                Messagebox.show_warning(
+                    f"These export names couldn't be demangled: {failed}",
+                    "Demangle Failed",
+                    parent=self.__parent,
+                )
+        else:
+            export_names = exports
         self.set_state()
-        demangled = []
-        failed = []
-        for exp in exports:
-            try:
-                log.debug("Demangling {}", exp)
-                d = demangle(exp)
-            except DemangleError as exc:
-                log.exception(exc)
-                failed.append(exp)
-            except PlatformUnsupportedError as exc:
-                log.exception(exc)
-                failed = exports
-                break
-            else:
-                demangled.append(d)
-        export_names = demangled + failed
         self.cb.configure(values=export_names)
         selected_export = self.__selected_export.get()
         if selected_export:
             if selected_export not in export_names:
-                err = f"{selected_export} not found in export names"
-                log.error(err)
-                Messagebox.show_error(err, "Export not found", parent=self.__parent)
+                err = "%s not found in export names"
+                log.error(err, selected_export)
+                Messagebox.show_error(
+                    err % selected_export, "Export not found", parent=self.__parent
+                )
                 self.cb.set("")
             else:
                 # Activate function frame when export name is passed from command line
                 self.cb_selected()
         self.__status.set(f"{num_exports} exports found")
-        if failed:
-            Messagebox.show_warning(
-                f"These export names couldn't be demangled: {failed}",
-                "Demangle Failed",
-                parent=self.__parent,
-            )
