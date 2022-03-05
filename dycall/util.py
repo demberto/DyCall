@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import platform
-from ctypes import create_unicode_buffer, windll
+from ctypes import create_unicode_buffer
 
 try:
-    from typing import Final
+    from typing import Final  # type: ignore
 except ImportError:
     from typing_extensions import Final  # type: ignore
 
@@ -37,6 +39,8 @@ def demangle(exp: str) -> str:
         if exp.startswith("?"):
             buf = create_unicode_buffer(BUFSIZE)
             try:
+                from ctypes import windll  # pylint: disable=import-outside-toplevel
+
                 hr = windll.dbghelp.UnDecorateSymbolNameW(exp, buf, BUFSIZE, 0)
             except OSError as e:
                 raise DemangleError from e
