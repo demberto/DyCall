@@ -154,13 +154,14 @@ class FunctionFrame(ttk.Frame):
         t = self.at.get_cell_data(row, 0)
         try:
             if t == "bool":
-                assert text in ("True", "False")
+                if text not in ("True", "False"):
+                    raise ValueError
             elif t in ("float", "double"):
                 float(text)
             elif t not in ("char", "char*", "wchar_t", "wchar_t*"):
                 int(text)
         # https://stackoverflow.com/a/6470452
-        except (AssertionError, ValueError):
+        except ValueError:
             self.at.highlight_cells(row, 1, bg="red")
         else:
             self.at.dehighlight_cells(row, 1)
