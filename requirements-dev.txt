@@ -1,6 +1,7 @@
 bandit
 flake8
 flake8-docstrings
+flake8-typing-imports
 isort
 pre-commit
 tox
