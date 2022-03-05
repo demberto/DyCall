@@ -4,7 +4,7 @@ import logging
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
-from ttkbootstrap.localization import MessageCatalog as MC
+from ttkbootstrap.localization import MessageCatalog as MsgCat
 
 from dycall.util import DemangleError, PlatformUnsupportedError, demangle
 
@@ -25,7 +25,7 @@ class ExportsFrame(ttk.Labelframe):
     ):
         log.debug("Initalising")
 
-        super().__init__(text=MC.translate("Exports"))
+        super().__init__(text=MsgCat.translate("Exports"))
         self.__parent = parent
         self.__selected_export = export
         self.__output = output

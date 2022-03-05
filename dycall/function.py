@@ -10,7 +10,7 @@ from typing import NamedTuple
 import tksheet
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
-from ttkbootstrap.localization import MessageCatalog as MC
+from ttkbootstrap.localization import MessageCatalog as MsgCat
 
 from dycall.runner import Runner
 from dycall.types import CALL_CONVENTIONS, PARAMETER_TYPES, Marshaller
@@ -73,7 +73,7 @@ class FunctionFrame(ttk.Frame):
         # Run
         self.rb = rb = ttk.Button(
             self,
-            text=f"{MC.translate('Run')}\n(F5)",
+            text=f"{MsgCat.translate('Run')}\n(F5)",
             state="disabled",
             command=self.run,
         )
@@ -82,7 +82,7 @@ class FunctionFrame(ttk.Frame):
         self.ag = ag = ttk.Labelframe(self, text="Arguments")
         self.at = at = tksheet.Sheet(
             ag,
-            headers=[MC.translate("Type"), MC.translate("Value")],
+            headers=[MsgCat.translate("Type"), MsgCat.translate("Value")],
             empty_horizontal=20,
             row_height=25,
             data=self.__args,

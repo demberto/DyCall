@@ -11,7 +11,7 @@ import lief
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
-from ttkbootstrap.localization import MessageCatalog as MC
+from ttkbootstrap.localization import MessageCatalog as MsgCat
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class PickerFrame(ttk.Labelframe):
 
         # Button to invoke file picker
         self.fb = fb = ttk.Button(
-            self, text=MC.translate("Browse"), command=self.browse
+            self, text=MsgCat.translate("Browse"), command=self.browse
         )
         fb.pack(side="right", padx=(0, 5), pady=5)
 
