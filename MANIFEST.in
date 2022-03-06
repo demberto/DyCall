@@ -5,6 +5,7 @@ include .editorconfig
 include .pre-commit-config.yaml
 include .vscode/settings.json
 include constraints-dev.txt
+include py.typed
 indlude requirements-dev.txt
 include requirements.txt
 include tox.ini
