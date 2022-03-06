@@ -134,11 +134,12 @@ class FunctionFrame(ttk.Frame):
         self.at.set_cell_data(r=param1, c=1, value="0")
 
     def table_end_edit_cell(self, event: NamedTuple):
-        row, col, _, text, *_ = event
-        if col == 1:
-            self.table_validate(row, text)
-        else:
-            self.at.dehighlight_cells(row, 1)
+        row, col, action, text, *_ = event
+        if action != "Escape":
+            if col == 1:
+                self.table_validate(row, text)
+            else:
+                self.at.dehighlight_cells(row, 1)
 
     def table_end_paste(self, event: NamedTuple):
         _, (x, y), content = event
@@ -147,19 +148,23 @@ class FunctionFrame(ttk.Frame):
             if col == 1:
                 text = content[0][0]
                 self.table_validate(row, text)
-        # TODO
-        # elif isinstance(x, str):
-        #    what, which = x, y
+        elif isinstance(x, str):
+            what, which = x, y
+            if what == "column" and which == 1:
+                for idx, field in enumerate(content):
+                    # Idk why field is a list itself
+                    self.table_validate(idx, field[0])
 
     def table_validate(self, row: int, text: str):
         t = self.at.get_cell_data(row, 0)
         try:
+            # bool & void have readonly cells, no need to validate
             if t in ("float", "double"):
                 float(text)
             elif t not in ("char", "char*", "wchar_t", "wchar_t*"):
                 int(text)
-        # https://stackoverflow.com/a/6470452
-        except ValueError:
+        # Catch multiple exceptions: https://stackoverflow.com/a/6470452
+        except (TypeError, ValueError):
             self.at.highlight_cells(row, 1, bg="red")
         else:
             self.at.dehighlight_cells(row, 1)
@@ -187,8 +192,10 @@ class FunctionFrame(ttk.Frame):
         t = self.at
 
         if type_ == "bool":
-            t.create_dropdown(row, 1, values=["True", "False"], redraw=True)
-            t.readonly_cells(row, 1)
+            # Check if type is not bool already
+            if t.get_dropdown_value(row, 0) != "bool":
+                t.create_dropdown(row, 1, values=["True", "False"], redraw=True)
+                t.readonly_cells(row, 1)
             return
         else:
             try:
