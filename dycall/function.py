@@ -154,10 +154,7 @@ class FunctionFrame(ttk.Frame):
     def table_validate(self, row: int, text: str):
         t = self.at.get_cell_data(row, 0)
         try:
-            if t == "bool":
-                if text not in ("True", "False"):
-                    raise ValueError
-            elif t in ("float", "double"):
+            if t in ("float", "double"):
                 float(text)
             elif t not in ("char", "char*", "wchar_t", "wchar_t*"):
                 int(text)
@@ -191,16 +188,18 @@ class FunctionFrame(ttk.Frame):
 
         if type_ == "bool":
             t.create_dropdown(row, 1, values=["True", "False"], redraw=True)
+            t.readonly_cells(row, 1)
             return
         else:
             try:
+                t.readonly_cells(row, 1, readonly=False)
                 t.delete_dropdown(row, 1)
-            except:  # noqa: E722
+            except KeyError:
                 t.set_cell_data(row, 1)
 
         if type_ == "void":
             t.set_cell_data(row, 1, value="NULL")
-            t.readonly_cells(row, 1, readonly=True)
+            t.readonly_cells(row, 1)
             return
         else:
             t.readonly_cells(row, 1, readonly=False)
