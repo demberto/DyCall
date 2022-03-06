@@ -72,7 +72,7 @@ python -m pip uninstall dycall
 _The interface has changed a bit since I recorded this GIF_
 
 <div align="center">
-  <img src="ext/usage.gif"/>
+  <img src="https://github.com/demberto/DyCall/blob/master/ext/usage.gif"/>
 </div>
 
 ## FAQ
