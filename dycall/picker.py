@@ -150,5 +150,6 @@ class PickerFrame(ttk.Labelframe):
             )
             self.__is_native.set(False)
 
+        self.__exports.clear()
         self.__exports.extend([e.name for e in lib.exported_functions])
         self.__parent.exports.set_cb_values()

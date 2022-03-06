@@ -88,8 +88,8 @@ class ExportsFrame(ttk.Labelframe):
                     break
                 else:
                     demangled.append(d)
-            export_names = demangled + failed
-            self.__exports = export_names
+            self.__exports.clear()
+            self.__exports.extend(demangled + failed)
             if failed:
                 Messagebox.show_warning(
                     f"These export names couldn't be demangled: {failed}",
@@ -97,12 +97,13 @@ class ExportsFrame(ttk.Labelframe):
                     parent=self.__parent,
                 )
         else:
-            export_names = exports
+            self.__exports.clear()
+            self.__exports.extend(exports)
         self.set_state()
-        self.cb.configure(values=export_names)
+        self.cb.configure(values=self.__exports)
         selected_export = self.__selected_export.get()
         if selected_export:
-            if selected_export not in export_names:
+            if selected_export not in self.__exports:
                 err = "%s not found in export names"
                 log.error(err, selected_export)
                 Messagebox.show_error(
