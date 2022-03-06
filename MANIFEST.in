@@ -2,7 +2,6 @@ include *.md
 include *.txt
 include *.yaml
 include .editorconfig
-include .pre-commit-config.yaml
 include .vscode/settings.json
 include constraints-dev.txt
 include py.typed
