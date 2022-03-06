@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import pathlib
 import platform
 from ctypes import create_unicode_buffer
+from typing import Union
 
 try:
     from ctypes import windll
@@ -81,3 +83,23 @@ LCIDS: Final = LCID2Lang.keys()
 
 # Dictionary inversion: https://stackoverflow.com/a/66464410
 Lang2LCID: Final = {v: k for k, v in LCID2Lang.items()}
+
+# * Helpers
+
+# https://stackoverflow.com/a/3430395
+dirpath = pathlib.Path(__file__).parent.resolve()
+
+
+def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]):
+    """Used by `App` and `DemanglerWindow` to set the window icon.
+
+    Args:
+        wnd: (Union[tk.Window, tk.Toplevel]): The window whose icon is to be set.
+    """
+    if platform.system() == "Windows":
+        ico = dirpath / "img/dycall.ico"
+        wnd.iconbitmap(ico)
+    else:
+        png = dirpath / "img/dycall.png"
+        img = tk.PhotoImage(data=open(png, "rb").read())
+        wnd.iconphoto(False, img)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 
 import ttkbootstrap as tk
@@ -5,13 +6,19 @@ from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
-from dycall.util import CopyButton, DemangleError, PlatformUnsupportedError, demangle
+from dycall.util import (
+    CopyButton,
+    DemangleError,
+    PlatformUnsupportedError,
+    demangle,
+    set_app_icon,
+)
 
 log = logging.getLogger(__name__)
 
 
 class DemanglerWindow(tk.Toplevel):
-    def __init__(self, parent):
+    def __init__(self, parent: tk.Window):
         log.debug("Initialising")
         self.parent = parent
         self.mangled_name = mangled_var = tk.StringVar()
@@ -19,7 +26,7 @@ class DemanglerWindow(tk.Toplevel):
 
         super().__init__(title="Demangler")
         self.withdraw()
-        self.iconbitmap("dycall/img/dycall.ico")
+        set_app_icon(self)
         self.minsize(300, 100)
         self.geometry("500x100")
 
