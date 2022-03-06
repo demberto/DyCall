@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import argparse
 import logging
@@ -12,6 +13,7 @@ from dycall.types import CALL_CONVENTIONS, PARAMETER_TYPES
 from dycall.util import LCIDS
 
 desktop_app.set_process_appid("dycall")
+os = platform.system()
 
 
 # https://stackoverflow.com/a/18700817
@@ -31,9 +33,10 @@ def main():
     ap.add_argument("--log", help="Display logs", action="store_true")
     ap.add_argument("--lib", help="Path/name of library to load on startup")
     ap.add_argument("--exp", help="Name of export to select on library load")
-    ap.add_argument(
-        "--conv", help="Calling convention to use.", choices=CALL_CONVENTIONS
-    )
+    if os == "Windows":
+        ap.add_argument(
+            "--conv", help="Calling convention to use.", choices=CALL_CONVENTIONS
+        )
     ap.add_argument(
         "--ret", help="Return type of the function.", choices=PARAMETER_TYPES
     )
@@ -52,7 +55,6 @@ def main():
     else:
         lief.logging.disable()
 
-    os = platform.system()
     launch_args = vars(args)
     _ = launch_args.pop("log", None)  # Logging is handled hee itself
     if os == "Linux":

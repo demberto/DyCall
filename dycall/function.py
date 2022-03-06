@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+import platform
 import queue
 from typing import NamedTuple
 
@@ -45,18 +46,20 @@ class FunctionFrame(ttk.Frame):
         self.__res_q = queue.Queue()  # type: ignore
         self.__exc_q = queue.Queue()  # type: ignore
         self.__args: list[list[str]] = []
+        self.__is_windows = platform.system() == "Windows"
 
         # Call convention
-        cg = ttk.Labelframe(self, text="Calling Convention")
-        self.cc = cc = ttk.Combobox(
-            cg,
-            values=CALL_CONVENTIONS,
-            textvariable=call_conv,
-            state="disabled",
-            font=("Courier", 9),
-        )
-        if not call_conv.get():
-            cc.current(0)  # CallConvention.cdecl
+        if self.__is_windows:
+            cg = ttk.Labelframe(self, text="Calling Convention")
+            self.cc = cc = ttk.Combobox(
+                cg,
+                values=CALL_CONVENTIONS,
+                textvariable=call_conv,
+                state="disabled",
+                font=("Courier", 9),
+            )
+            if not call_conv.get():
+                cc.current(0)  # CallConvention.cdecl
 
         # Return type
         rg = ttk.Labelframe(self, text="Returns")
@@ -100,20 +103,27 @@ class FunctionFrame(ttk.Frame):
                 at.insert_row()
                 self.table_end_insert_rows(row=row_index)
 
-        cc.grid(sticky="ew", padx=5, pady=5)
+        if self.__is_windows:
+            cc.grid(sticky="ew", padx=5, pady=5)
         rc.grid(sticky="ew", padx=5, pady=5)
         at.grid(sticky="nsew", padx=5, pady=5)
 
-        cg.grid(row=0, column=0, sticky="ew", padx=5)
-        rg.grid(row=0, column=1, sticky="ew")
-        rb.grid(row=0, column=2, padx=5)
+        if self.__is_windows:
+            cg.grid(row=0, column=0, sticky="ew", padx=5)
+            rg.grid(row=0, column=1, sticky="ew")
+            rb.grid(row=0, column=2, padx=5)
+        else:
+            rg.grid(row=0, column=0, sticky="ew", padx=5)
+            rb.grid(row=0, column=1, padx=5)
         ag.grid(row=1, columnspan=3, sticky="nsew", padx=5, pady=5)
 
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
+        if self.__is_windows:
+            self.columnconfigure(1, weight=1)
 
-        cg.columnconfigure(0, weight=1)
+        if self.__is_windows:
+            cg.columnconfigure(0, weight=1)
         rg.columnconfigure(0, weight=1)
         ag.rowconfigure(0, weight=1)
         ag.columnconfigure(0, weight=1)
@@ -172,7 +182,8 @@ class FunctionFrame(ttk.Frame):
     def set_state(self, activate: bool = True):
         if activate:
             self.rc.configure(state="readonly")
-            self.cc.configure(state="readonly")
+            if self.__is_windows:
+                self.cc.configure(state="readonly")
             self.rb.configure(state="normal")
             self.at.enable_bindings()
             for binding in ("rc_insert_column", "rc_delete_column", "cut", "delete"):
