@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
+import pathlib
 import platform
 
 import appdirs
@@ -9,7 +10,7 @@ import easysettings
 import ttkbootstrap as tk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.icons import Icon
-from ttkbootstrap.localization import MessageCatalog
+from ttkbootstrap.localization import MessageCatalog as MsgCat
 
 from dycall.exports import ExportsFrame
 from dycall.function import FunctionFrame
@@ -17,8 +18,12 @@ from dycall.output import OutputFrame
 from dycall.picker import PickerFrame
 from dycall.status_bar import StatusBarFrame
 from dycall.top_menu import TopMenu
+from dycall.util import set_app_icon
 
 log = logging.getLogger(__name__)
+
+# https://stackoverflow.com/a/3430395
+dirpath = pathlib.Path(__file__).parent.resolve()
 
 
 class App(tk.Window):  # pylint: disable=too-many-instance-attributes
@@ -90,15 +95,19 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         else:
             out_mode_or_not = config["out_mode"]
 
+        # ! BUG: Tkinter doesn't understand Windows paths
+        msgs_path = os.path.join(dirpath, "msgs").replace("\\", "/")
+
         # * The order and place where these 2 are called is very important
-        log.debug("Loading message catalogs")
-        MessageCatalog.load("dycall/msgs")
-        MessageCatalog.locale(locale_to_use)
+        log.debug("Loading message catalogs from %s", msgs_path)
+        found = MsgCat.load(msgs_path)
+        log.debug("Found %d translation files", found)
+        MsgCat.locale(locale_to_use)
 
         self.arch = platform.architecture()[0]
         self.title(self.__default_title)
         self.minsize(width=450, height=600)
-        self.iconbitmap("dycall/img/dycall.ico")
+        set_app_icon(self)
         self.cur_theme = tk.StringVar(value=config["theme"])
 
         # Set by picker
