@@ -1,5 +1,7 @@
 <!-- PROJECT SHIELDS -->
 
+![Integrity Action Status][integrity-status]
+![Publish Action Status][publish-status]
 [![MIT License][license-shield]][license-url]
 [![Python Versions][pyversions-shield]][pyversions-url]
 [![Package Version][package-version-shield]][package-version-url]
@@ -153,6 +155,9 @@ Additional acknowledgements have been made in the code.
 
 <!-- MARKDOWN LINKS AND IMAGES -->
 
+[integrity-status]:
+  https://img.shields.io/github/workflow/status/demberto/DyCall/Verify%20and%20maintain%20integrity?label=integrity
+[publish-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/Publish
 [license-shield]: https://img.shields.io/pypi/l/dycall
 [license-url]: https://github.com/demberto/DyCall/blob/master/LICENSE
 [pyversions-shield]: https://img.shields.io/pypi/pyversions/dycall
