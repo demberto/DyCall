@@ -6,6 +6,11 @@ import queue
 import threading
 from ctypes import CDLL, CFUNCTYPE
 
+try:
+    from ctypes import WINFUNCTYPE, WinDLL
+except ImportError:
+    pass
+
 from dycall.types import CallConvention, Marshaller, ParameterType, RunResult
 
 log = logging.getLogger(__name__)
@@ -35,9 +40,6 @@ class Runner(threading.Thread):
         self.__call_conv = CallConvention(call_conv)
         self.__restype = ParameterType(returns).ctype
         if self.__call_conv == CallConvention.StdCall:
-            # pylint: disable-next=import-outside-toplevel
-            from ctypes import WINFUNCTYPE, WinDLL
-
             self.__handle = WinDLL(lib_path)
             self.__functype = WINFUNCTYPE
         else:
