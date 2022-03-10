@@ -5,9 +5,10 @@ import logging
 import queue
 import threading
 from ctypes import CDLL, CFUNCTYPE
+from typing import Union
 
 try:
-    from ctypes import WINFUNCTYPE, WinDLL
+    from ctypes import WINFUNCTYPE, WinDLL  # pylint: disable=ungrouped-imports
 except ImportError:
     pass
 
@@ -25,7 +26,7 @@ class Runner(threading.Thread):
         call_conv: str,
         returns: str,
         lib_path: str,
-        funcname: str,
+        name_or_ord: str,
     ) -> None:
         log.debug(
             "Called with args=%s, call_conv=%s, returns=%s, lib_path=%s, funcname=%s",
@@ -33,7 +34,7 @@ class Runner(threading.Thread):
             call_conv,
             returns,
             lib_path,
-            funcname,
+            name_or_ord,
         )
         self.__exc = exc
         self.__queue = que
@@ -45,7 +46,10 @@ class Runner(threading.Thread):
         else:
             self.__handle = CDLL(lib_path)  # type: ignore
             self.__functype = CFUNCTYPE
-        self.__funcname = funcname
+        if name_or_ord.startswith("@"):
+            self.__name_or_ord = int(name_or_ord[1:])  # type: Union[str, int]
+        else:
+            self.__name_or_ord = name_or_ord
         self.__parse_args(args)
         super().__init__()
 
@@ -65,7 +69,7 @@ class Runner(threading.Thread):
                 prototype = self.__functype(self.__restype, *self.__argtypes)
             else:
                 prototype = self.__functype(self.__restype)
-            ptr = prototype((self.__funcname, self.__handle))
+            ptr = prototype((self.__name_or_ord, self.__handle))
             result = ptr(*self.__argvalues)
             run_result = RunResult(result, self.__argvalues)
         except Exception as e:  # pylint: disable=broad-except
