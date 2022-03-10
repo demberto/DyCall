@@ -6,6 +6,7 @@ isort
 mypy
 pre-commit
 pylint
+pytest
 setup-cfg-fmt
 tox
 yesqa

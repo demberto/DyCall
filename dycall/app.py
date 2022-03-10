@@ -29,7 +29,6 @@ dirpath = pathlib.Path(__file__).parent.resolve()
 class App(tk.Window):  # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        *args,
         conv: str = "",
         exp: str = "",
         lib: str = "",
@@ -37,7 +36,6 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         rows: int = 0,
         lang: str = "",
         out_mode: bool = False,
-        **kwargs,
     ) -> None:
         """DyCall entry point.
 
@@ -66,7 +64,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.__dont_save_locale = False
         self.__dont_save_out_mode = False
 
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self.withdraw()
 
         log.debug("Loading config")

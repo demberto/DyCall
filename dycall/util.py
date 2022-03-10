@@ -79,7 +79,7 @@ class CopyButton(ttk.Button):  # pylint: disable=too-many-ancestors
 # ! Translators should add the LCID and native form of the language below
 LCID2Lang: Final = {"en": "English", "hi": "हिन्दी", "mr": "मराठी"}
 
-LCIDS: Final = LCID2Lang.keys()
+LCIDS: Final = tuple(LCID2Lang.keys())
 
 # Dictionary inversion: https://stackoverflow.com/a/66464410
 Lang2LCID: Final = {v: k for k, v in LCID2Lang.items()}

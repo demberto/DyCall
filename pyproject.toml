@@ -37,6 +37,10 @@ ignore-imports = "yes"
 [tool.pylint.TYPECHECK]
 generated-members = ["lief.*"]
 
+[tool.pytest.ini_options]
+minversion = 6.0
+testpaths = "tests"
+
 [tool.tbump]
 # Uncomment this if your project is hosted on GitHub:
 # github_url = "https://github.com/<user or organization>/<project>/"
