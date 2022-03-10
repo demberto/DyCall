@@ -17,27 +17,32 @@ class ExportsFrame(ttk.Labelframe):
     def __init__(
         self,
         parent: tk.Window,
-        export: tk.StringVar,
+        selected_export: tk.StringVar,
+        sort_order: tk.StringVar,
         output: tk.StringVar,
         status: tk.StringVar,
         is_loaded: tk.BooleanVar,
         is_native: tk.BooleanVar,
         is_reinitialised: tk.BooleanVar,
-        exports: list[str],
+        exports: dict[int, str],
     ):
         log.debug("Initalising")
 
         super().__init__(text=MsgCat.translate("Exports"))
         self.__parent = parent
-        self.__selected_export = export
+        self.__selected_export = selected_export
+        self.__sort_order = sort_order
         self.__output = output
         self.__status = status
-        self.__is_loaded = is_loaded  # pylint: disable=unused-private-member # TODO
+        self.__is_loaded = is_loaded
         self.__is_native = is_native
         self.__is_reinitialised = is_reinitialised
         self.__exports = exports
+        self.__displayed_exports: dict[int, str] = {}
 
-        self.cb = cb = ttk.Combobox(self, state="disabled", textvariable=export)
+        self.cb = cb = ttk.Combobox(
+            self, state="disabled", textvariable=selected_export
+        )
         cb.bind("<<ComboboxSelected>>", self.cb_selected)
         cb.pack(fill="x", padx=5, pady=5)
 
@@ -69,41 +74,42 @@ class ExportsFrame(ttk.Labelframe):
 
     def set_cb_values(self):
         """Demangles and sets the export names to the **Exports** combobox."""
-        exports = self.__exports
-        num_exports = len(exports)
-        log.info("Found %d exports", num_exports)
-        if not self.__is_reinitialised.get():
-            demangled = []
+        exports = self.__displayed_exports
+        if not self.__is_reinitialised.get() or self.__is_loaded.get():
+            exports.clear()
+            exports.update(self.__exports.copy())
+            num_exports = len(exports)
+            log.info("Found %d exports", num_exports)
+            self.__status.set(f"{num_exports} exports found")
             failed = []
-            for exp in exports:
-                try:
-                    log.debug("Demangling %s", exp)
-                    d = demangle(exp)
-                except DemangleError as exc:
-                    log.exception(exc)
-                    failed.append(exp)
-                except PlatformUnsupportedError as exc:
-                    log.exception(exc)
-                    failed = exports
-                    break
+            for ord_, exp in exports.items():
+                if exp:
+                    try:
+                        log.debug("Demangling %s", exp)
+                        demangled = demangle(exp)
+                    except DemangleError as exc:
+                        log.exception(exc)
+                        failed.append(exp)
+                    except PlatformUnsupportedError as exc:
+                        log.exception(exc)
+                        failed = list(exports.values())
+                        break
+                    else:
+                        exports[ord_] = demangled
                 else:
-                    demangled.append(d)
-            self.__exports.clear()
-            self.__exports.extend(demangled + failed)
+                    exports[ord_] = f"@{ord_}"
             if failed:
                 Messagebox.show_warning(
                     f"These export names couldn't be demangled: {failed}",
-                    "Demangle Failed",
+                    "Demangle Errors",
                     parent=self.__parent,
                 )
-        else:
-            self.__exports.clear()
-            self.__exports.extend(exports)
+        export_names = tuple(exports.values())
         self.set_state()
-        self.cb.configure(values=self.__exports)
+        self.cb.configure(values=export_names)
         selected_export = self.__selected_export.get()
         if selected_export:
-            if selected_export not in self.__exports:
+            if selected_export not in export_names:
                 err = "%s not found in export names"
                 log.error(err, selected_export)
                 Messagebox.show_error(
@@ -113,4 +119,23 @@ class ExportsFrame(ttk.Labelframe):
             else:
                 # Activate function frame when export name is passed from command line
                 self.cb_selected()
-        self.__status.set(f"{num_exports} exports found")
+
+    def sort(self, *_):
+        if self.__is_loaded.get():
+            sorter = self.__sort_order.get()
+            log.debug("Sorting w.r.t. %s", sorter)
+            exports = self.__displayed_exports
+            if sorter.startswith("Ordinal"):
+                items = exports.items()
+                if sorter == "Ordinal (ascending)":
+                    names = sorted(items, key=lambda item: item[0])
+                elif sorter == "Ordinal (descending)":
+                    names = sorted(items, key=lambda item: item[0], reverse=True)
+                names = list(zip(*names))[1]  # https://stackoverflow.com/a/25050572
+            elif sorter.startswith("Name"):
+                names = list(exports.values())
+                if sorter == "Name (ascending)":
+                    names.sort()
+                elif sorter == "Name (descending)":
+                    names.sort(reverse=True)
+            self.cb.configure(values=names)
