@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import collections
 import ctypes.util
 import logging
 import pathlib
@@ -28,6 +29,7 @@ class PickerFrame(ttk.Labelframe):
         is_native: tk.BooleanVar,
         default_title: str,
         exports: dict[int, str],
+        recents: collections.deque,
     ):
         log.debug("Initialising")
 
@@ -41,6 +43,7 @@ class PickerFrame(ttk.Labelframe):
         self.__is_loaded = is_loaded
         self.__is_native = is_native
         self.__exports = exports
+        self.__recents = recents
         self.os_name = platform.system()
         is_file = self.register(self.validate)
 
@@ -126,8 +129,13 @@ class PickerFrame(ttk.Labelframe):
             return
         self.__parent.lib = lib
         self.__is_loaded.set(True)
+        if path not in self.__recents:
+            self.__recents.append(path)
+            self.__parent.top_menu.update_recents(redraw=True)
+        else:
+            self.__recents.remove(path)
+            self.__recents.appendleft(path)
         self.__status.set("Loaded successfully")
-
         lib_name = str(pathlib.Path(path).name)
         self.__parent.title(f"{self.__default_title} - {lib_name}")
 

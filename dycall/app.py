@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import collections
 import logging
 import os
 import pathlib
 import platform
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    try:
+        from typing import Final
+    except ImportError:
+        from typing_extensions import Final  # type: ignore
+
+# pylint: disable=wrong-import-position
 import appdirs
 import darkdetect
 import easysettings
@@ -59,8 +68,9 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
                 Defaults to False.
         """  # noqa: D403
         log.debug("Initialising")
-        self.__rows_to_add = rows
+        self.__rows_to_add: Final = rows
         self.__export_names: dict[int, str] = {}
+        self.__recents: Final[collections.deque] = collections.deque(maxlen=10)
 
         # No need to save a preference in the config when
         # DyCall is passed with it from the command line.
@@ -83,6 +93,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
                 "geometry": self.centre_position,
                 "out_mode": False,
                 "locale": "en",
+                "recents": [],
             },
         )
         if lang:
@@ -95,6 +106,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__dont_save_out_mode = True
         else:
             out_mode_or_not = config["out_mode"]
+        self.__recents.extend(config["recents"])
 
         # ! BUG: Tkinter doesn't understand Windows paths
         msgs_path = os.path.join(dirpath, "msgs").replace("\\", "/")
@@ -182,12 +194,6 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__is_reinitialised,
             self.__export_names,
         )
-        self.top_menu = tm = TopMenu(
-            self,
-            self.__use_out_mode,
-            self.__locale,
-            self.__sort_order,
-        )
         self.picker = pf = PickerFrame(
             self,
             self.__library_path,
@@ -198,6 +204,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__is_native,
             self.__default_title,
             self.__export_names,
+            self.__recents,
+        )
+        self.top_menu = tm = TopMenu(
+            self, self.__use_out_mode, self.__locale, self.__sort_order, self.__recents
         )
 
         pf.pack(fill="x", padx=5)
@@ -244,6 +254,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         config = self.__config
         config["theme"] = self.cur_theme.get()
         config["geometry"] = self.geometry()
+        config["recents"] = tuple(self.__recents)
         if not self.__dont_save_out_mode:
             config["out_mode"] = self.__use_out_mode.get()
         if not self.__dont_save_locale:

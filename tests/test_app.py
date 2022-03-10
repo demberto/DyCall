@@ -10,4 +10,4 @@ def test_default_config(create_app, tmp_path):
     assert settings_file.is_file()
     with open(settings_file) as fp:
         s: dict = json.load(fp)
-    assert set(s.keys()) == set(("geometry", "out_mode", "locale", "theme"))
+    assert set(s.keys()) == set(("geometry", "out_mode", "locale", "recents", "theme"))
