@@ -10,9 +10,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 
 - Support for recent files via **File** > **Open Recent**.
+- Added the GitHub project repo link to **About** page.
 
 ### Changed
 
 - Added emojis to README.
+
+### Fixed
+
+- CI actions
 
 ## 0.0.3 - Initial public release

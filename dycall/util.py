@@ -90,7 +90,12 @@ Lang2LCID: Final = {v: k for k, v in LCID2Lang.items()}
 dirpath = pathlib.Path(__file__).parent.resolve()
 
 
-def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]):
+def get_png(name: str) -> tk.PhotoImage:
+    with open(dirpath / "img" / name, "rb") as png:
+        return tk.PhotoImage(data=png.read())
+
+
+def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]) -> None:
     """Used by `App` and `DemanglerWindow` to set the window icon.
 
     Args:
@@ -100,7 +105,4 @@ def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]):
         ico = dirpath / "img/dycall.ico"
         wnd.iconbitmap(ico)
     else:
-        png = dirpath / "img/dycall.png"
-        with open(png, "rb") as fp:
-            img = tk.PhotoImage(data=fp.read())
-        wnd.iconphoto(False, img)
+        wnd.iconphoto(False, get_png("dycall.png"))
