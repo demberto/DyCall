@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
 import logging
+import webbrowser
 
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
 from ttkbootstrap.localization import MessageCatalog as MsgCat
+
+from dycall.util import get_png
 
 log = logging.getLogger(__name__)
 
@@ -20,21 +24,41 @@ class AboutWindow(tk.Toplevel):
         )
         self.withdraw()
         self.resizable(False, False)
-
-        self.bind("<ButtonPress-1>", self.start_move)
-        self.bind("<ButtonRelease-1>", self.stop_move)
-        self.bind("<B1-Motion>", self.do_move)
         self.bind("<Escape>", lambda *_: self.destroy())
 
-        ttk.Button(
-            self, text="🗙", command=lambda *_: self.destroy(), bootstyle="danger"
-        ).place(anchor="ne", relx=1, rely=0)
+        tf = ttk.Frame(self)
+        self.cb = cb = ttk.Button(tf, text="🗙", command=lambda *_: self.destroy())
+        cb.bind(
+            "<Enter>",
+            lambda *_: self.after(50, lambda: cb.configure(bootstyle="danger")),
+        )
+        cb.bind(
+            "<Leave>",
+            lambda *_: self.after(50, lambda: cb.configure(bootstyle="primary")),
+        )
+        cb.pack(side="right")
+        tf.bind("<ButtonPress-1>", self.start_move)
+        tf.bind("<ButtonRelease-1>", self.stop_move)
+        tf.bind("<B1-Motion>", self.do_move)
+        tf.pack(side="top", fill="x")
+
         ttk.Label(self, text="DyCall", font=tk.font.Font(size=24)).place(
-            relx=0.5, rely=0.4, anchor="center"
+            relx=0.5, rely=0.3, anchor="center"
         )
         ttk.Label(self, text="(c) demberto 2022").place(
-            relx=0.5, rely=0.6, anchor="center"
+            relx=0.5, rely=0.5, anchor="center"
         )
+
+        # https://stackoverflow.com/a/15216402
+        self.__github = get_png("github.png")
+        gb = ttk.Label(self, image=self.__github, cursor="hand2")
+
+        # https://stackoverflow.com/a/68306781
+        gb.bind(
+            "<ButtonRelease-1>",
+            lambda *_: webbrowser.open_new_tab("https://github.com/demberto/DyCall"),
+        )
+        gb.place(relx=0.5, rely=0.75, anchor="center")
         ll = ttk.Label(
             self,
             text=MsgCat.translate("DyCall is distributed under the MIT license"),
