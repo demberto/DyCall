@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import collections
 import logging
 
 import ttkbootstrap as tk
@@ -13,17 +14,29 @@ log = logging.getLogger(__name__)
 
 
 class TopMenu(tk.Menu):
+    # pylint: disable-next=too-many-locals
     def __init__(
         self,
-        parent,
+        parent: tk.Window,
         outmode: tk.BooleanVar,
         locale: tk.StringVar,
         sort_order: tk.StringVar,
+        recents: collections.deque,
     ):
         super().__init__()
-        self.parent = parent
+        self.__parent = parent
         self.__locale = locale
+        self.__recents = recents
         self.__lang = tk.StringVar(value=LCID2Lang[locale.get()])
+
+        # File
+        self.fo = fo = tk.Menu()
+        self.add_cascade(menu=fo, label="File")
+
+        # File -> Open Recent
+        self.fop = fop = tk.Menu()
+        fo.add_cascade(menu=fop, label="Open Recent")
+        self.update_recents()
 
         # Options
         self.mo = mo = tk.Menu()
@@ -84,5 +97,14 @@ class TopMenu(tk.Menu):
         lc = self.__locale
         lc.set(Lang2LCID[self.__lang.get()])
         MsgCat.locale(lc.get())
-        self.parent.refresh()
+        self.__parent.refresh()
         log.info("Changed locale to '%s'", MsgCat.locale())
+
+    def update_recents(self, redraw=False):
+        if redraw:
+            self.fop.delete(0, 9)
+        for path in self.__recents:
+            # pylint: disable=cell-var-from-loop
+            self.fop.add_command(
+                label=path, command=lambda *_: self.__parent.picker.load(path=path)
+            )
