@@ -7,12 +7,12 @@ from ctypes import create_unicode_buffer
 from typing import Union
 
 try:
-    from ctypes import windll
+    from ctypes import windll  # pylint: disable=ungrouped-imports
 except ImportError:
     pass
 
 try:
-    from typing import Final  # type: ignore
+    from typing import Final  # type: ignore    # pylint: disable-next=ungrouped-imports
 except ImportError:
     from typing_extensions import Final  # type: ignore
 
@@ -101,5 +101,6 @@ def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]):
         wnd.iconbitmap(ico)
     else:
         png = dirpath / "img/dycall.png"
-        img = tk.PhotoImage(data=open(png, "rb").read())
+        with open(png, "rb") as fp:
+            img = tk.PhotoImage(data=fp.read())
         wnd.iconphoto(False, img)
