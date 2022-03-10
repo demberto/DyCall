@@ -24,6 +24,7 @@ _"libraries" refers to dynamic libraries (a.k.a shared objects etc.)._
 
 - Follows platform-specific library search order.
 - Automatic export name demangling for native libraries.
+- Support for ordinal-only exports.
 - Support for _out_ variables.
 - Find out export names for non-native libraries as well.
 - Standalone demangler for native ABI mangled names.

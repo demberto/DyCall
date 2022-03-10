@@ -27,7 +27,7 @@ class PickerFrame(ttk.Labelframe):
         is_loaded: tk.BooleanVar,
         is_native: tk.BooleanVar,
         default_title: str,
-        exports: list[str],
+        exports: dict[int, str],
     ):
         log.debug("Initialising")
 
@@ -106,7 +106,7 @@ class PickerFrame(ttk.Labelframe):
         def failure():
             self.__is_loaded.set(False)
             self.__status.set("Load failed")
-            Messagebox.show_error("Load failed", f"Failed to load binary {path}")
+            Messagebox.show_error(f"Failed to load binary {path}", "Load failed")
 
         if path:
             self.__lib_path.set(path)
@@ -119,7 +119,7 @@ class PickerFrame(ttk.Labelframe):
                 self.__lib_path.set(path)
         self.__output.set("")
 
-        # * LIEF doesn't raise exceptions, instead returns the exception object
+        # * LIEF doesn't raise exceptions
         lib = lief.parse(path)
         if not isinstance(lib, lief.Binary):
             failure()
@@ -151,5 +151,8 @@ class PickerFrame(ttk.Labelframe):
             self.__is_native.set(False)
 
         self.__exports.clear()
-        self.__exports.extend([e.name for e in lib.exported_functions])
+        for exp in lib.get_export().entries:
+            ord_, name = exp.ordinal, exp.name
+            self.__exports[ord_] = name
+            log.debug("Found export name=%s, ordinal=%d", name, ord_)
         self.__parent.exports.set_cb_values()
