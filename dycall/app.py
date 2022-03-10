@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import logging
 import os
 import pathlib
@@ -18,6 +20,7 @@ from dycall.output import OutputFrame
 from dycall.picker import PickerFrame
 from dycall.status_bar import StatusBarFrame
 from dycall.top_menu import TopMenu
+from dycall.types import SortOrder
 from dycall.util import set_app_icon
 
 log = logging.getLogger(__name__)
@@ -57,7 +60,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         """  # noqa: D403
         log.debug("Initialising")
         self.__rows_to_add = rows
-        self.__export_names: list[str] = []
+        self.__export_names: dict[int, str] = {}
 
         # No need to save a preference in the config when
         # DyCall is passed with it from the command line.
@@ -120,6 +123,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.__is_reinitialised = tk.BooleanVar(value=False)
         self.__use_out_mode = tk.BooleanVar(value=out_mode_or_not)
         self.__locale = tk.StringVar(value=locale_to_use)
+        self.__sort_order = tk.StringVar(value=SortOrder.OrdinalAscending.value)
         self.__library_path = tk.StringVar(value=lib)
         self.__selected_export = tk.StringVar(value=exp)
         self.__call_convention = tk.StringVar(value=conv)
@@ -142,13 +146,11 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
 
         Separated from `__init__` because `refresh` requires this method too.
         These widgets are purposely public to allow subframes to access each
-        other's widgets through their `parent` attribute when necessary.
+        other's widgets through their `parent` attribute when necessary. The
+        order in which they get constructed is essential, it must be ensured
+        that no widget constructed first depends internally on a widget
+        constructed later here.
         """
-        self.top_menu = tm = TopMenu(
-            self,
-            self.__use_out_mode,
-            self.__locale,
-        )
         self.output = of = OutputFrame(
             self,
             self.__output_text,
@@ -172,12 +174,19 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.exports = ef = ExportsFrame(
             self,
             self.__selected_export,
+            self.__sort_order,
             self.__output_text,
             self.__status_text,
             self.__is_loaded,
             self.__is_native,
             self.__is_reinitialised,
             self.__export_names,
+        )
+        self.top_menu = tm = TopMenu(
+            self,
+            self.__use_out_mode,
+            self.__locale,
+            self.__sort_order,
         )
         self.picker = pf = PickerFrame(
             self,

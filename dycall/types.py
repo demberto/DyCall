@@ -202,3 +202,10 @@ class RunResult:
             v = Marshaller.ctype2str(arg)
             values.append(v)
         return values
+
+
+class SortOrder(enum.Enum):
+    NameAscending = "Name (ascending)"
+    NameDescending = "Name (descending)"
+    OrdinalAscending = "Ordinal (ascending)"
+    OrdinalDescending = "Ordinal (descending)"
