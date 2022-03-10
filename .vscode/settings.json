@@ -1,6 +1,8 @@
+// Activate venv on startup: https://stackoverflow.com/a/66281531/5541355
 {
   "python.formatting.provider": "black",
-  // Activate venv on startup: https://stackoverflow.com/a/66281531/5541355
   "python.terminal.activateEnvInCurrentTerminal": true,
-  "python.defaultInterpreterPath": "~/venv/bin/python"
+  "python.defaultInterpreterPath": "~/venv/bin/python",
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }
