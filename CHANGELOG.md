@@ -10,7 +10,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 
 - Support for recent files via **File** > **Open Recent**.
-- Added the GitHub project repo link to **About** page.
+- GitHub project repo link to **About** page.
+- Script to pad square images.
 
 ### Changed
 
