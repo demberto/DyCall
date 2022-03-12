@@ -12,4 +12,6 @@ include VERSION
 include dycall/desktop-app.json
 include dycall/img/*.*
 include ext/*.*
-recursive-include dycall *.msg
+include scripts/*.py
+include tests/*.py
+include dycall/msgs/*.msg
