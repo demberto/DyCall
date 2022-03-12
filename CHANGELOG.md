@@ -18,6 +18,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
-- CI actions
+- CI actions.
+- Entry point name.
 
 ## 0.0.3 - Initial public release
