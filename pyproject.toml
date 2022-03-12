@@ -10,7 +10,7 @@ exclude = "venv"
 ignore_missing_imports = true
 
 [tool.pylint.MASTER]
-jobs=0  # Faster
+jobs = 0 # Faster
 
 [tool.pylint.DESIGN]
 max-statements = 60
@@ -34,6 +34,7 @@ ignore-imports = "yes"
 
 [tool.pylint.TYPECHECK]
 generated-members = ["lief.*"]
+extension-pkg-allow-list = "win32api"
 
 [tool.pytest.ini_options]
 minversion = 6.0
@@ -44,7 +45,7 @@ testpaths = "tests"
 github_url = "https://github.com/demberto/DyCall/"
 
 [tool.tbump.version]
-current = "0.0.3"
+current = "0.0.5"
 
 # Example of a semver regexp.
 # Make sure this matches current_version before

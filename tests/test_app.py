@@ -14,4 +14,14 @@ def test_default_config(create_app, tmp_path):
     assert settings_file.is_file()
     with open(settings_file) as fp:
         s: dict = json.load(fp)
-    assert set(s.keys()) == set(("geometry", "out_mode", "locale", "recents", "theme"))
+    assert set(s.keys()) == set(
+        (
+            "geometry",
+            "out_mode",
+            "locale",
+            "recents",
+            "theme",
+            "show_errno",
+            "show_get_last_error",
+        )
+    )

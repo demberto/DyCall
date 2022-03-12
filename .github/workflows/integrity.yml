@@ -3,7 +3,7 @@ name: integrity
 on: [push, pull_request]
 
 jobs:
-  build:
+  integrity:
     runs-on: windows-latest
     strategy:
       matrix:

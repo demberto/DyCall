@@ -168,10 +168,10 @@ Additional acknowledgements have been made in the code.
 [code-style-url]: https://github.com/psf/black
 [code-of-conduct]: https://github.com/demberto/DyCall/blob/master/CODE_OF_CONDUCT.md
 [contributor-guide]: https://github.com/demberto/DyCall/blob/master/CONTRIBUTING.md
-[integrity-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/integrity
+[integrity-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/integrity?label=integrity
 [license-shield]: https://img.shields.io/pypi/l/dycall
 [license-url]: https://github.com/demberto/DyCall/blob/master/LICENSE
-[publish-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/publish
+[publish-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/publish?label=publish
 [pyversions-shield]: https://img.shields.io/pypi/pyversions/dycall
 [pyversions-url]: https://pypi.org/project/dycall
 [package-version-shield]: https://img.shields.io/pypi/v/dycall
