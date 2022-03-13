@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import logging
 import pathlib
 import platform
 from ctypes import create_unicode_buffer
@@ -19,6 +20,8 @@ except ImportError:
 import cxxfilt
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
+
+log = logging.getLogger(__name__)
 
 # * Demangling
 
@@ -90,9 +93,17 @@ Lang2LCID: Final = {v: k for k, v in LCID2Lang.items()}
 dirpath = pathlib.Path(__file__).parent.resolve()
 
 
-def get_png(name: str) -> tk.PhotoImage:
+def get_png(name: str, **kwargs) -> tk.PhotoImage:
+    """Finds an image `name` in *img/* and returns a PhotoImage object.
+
+    Additional keyword arguments are passed to `tk.PhotoImage`'s constructor.
+
+    Args:
+        name (str): The name of the image file as saved in *img/*, e.g. `clock.png`.
+    """
+    log.debug("Getting image %s", name)
     with open(dirpath / "img" / name, "rb") as png:
-        return tk.PhotoImage(data=png.read())
+        return tk.PhotoImage(data=png.read(), **kwargs)
 
 
 def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]) -> None:
@@ -101,6 +112,7 @@ def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]) -> None:
     Args:
         wnd: (Union[tk.Window, tk.Toplevel]): The window whose icon is to be set.
     """
+    log.debug("Setting app icon")
     if platform.system() == "Windows":
         ico = dirpath / "img/dycall.ico"
         wnd.iconbitmap(ico)
