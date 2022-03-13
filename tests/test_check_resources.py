@@ -22,5 +22,18 @@ def test_check_translations():
 def test_check_images():
     """Checks whether all the images used by DyCall are present in the package."""
     imgs = root / "dycall/img"
-    for img in ("dycall.ico", "dycall.png", "github.png"):
+    for img in (
+        "clock.png",
+        "dycall.ico",
+        "dycall.png",
+        "github.png",
+        "info.png",
+        "sort.png",
+        "sort_name_asc.png",
+        "sort_name_desc.png",
+        "sort_ord_asc.png",
+        "sort_ord_desc.png",
+        "theme.png",
+        "translate.png",
+    ):
         assert Path(imgs / img).is_file()
