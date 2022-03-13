@@ -8,7 +8,7 @@ from ttkbootstrap.localization import MessageCatalog as MsgCat
 from dycall.about import AboutWindow
 from dycall.demangler import DemanglerWindow
 from dycall.types import SortOrder
-from dycall.util import Lang2LCID, LCID2Lang
+from dycall.util import Lang2LCID, LCID2Lang, get_png
 
 log = logging.getLogger(__name__)
 
@@ -31,67 +31,110 @@ class TopMenu(tk.Menu):
 
         # File
         self.fo = fo = tk.Menu()
-        self.add_cascade(menu=fo, label="File")
+        self.add_cascade(menu=fo, label="File", underline=0)
 
         # File -> Open Recent
         self.fop = fop = tk.Menu()
-        fo.add_cascade(menu=fop, label="Open Recent")
+        self.__clock_png = get_png("clock.png")
+        fo.add_cascade(
+            menu=fop,
+            label="Open Recent",
+            underline=5,
+            image=self.__clock_png,
+            compound="left",
+        )
         self.update_recents()
 
         # Options
         self.mo = mo = tk.Menu()
-        self.add_cascade(menu=mo, label=MsgCat.translate("Options"))
+        self.add_cascade(menu=mo, label=MsgCat.translate("Options"), underline=0)
 
         # Options -> Language
         self.mol = mol = tk.Menu(mo)
+        self.__translate_png = get_png("translate.png")
         for lang in LCID2Lang.values():
             mol.add_radiobutton(
                 label=lang,
                 variable=self.__lang,
                 command=self.change_lang,
             )
-        mo.add_cascade(menu=mol, label=MsgCat.translate("Language"))
+        mo.add_cascade(
+            menu=mol,
+            label=MsgCat.translate("Language"),
+            image=self.__translate_png,
+            compound="left",
+        )
 
         # Options -> Theme
         self.mot = mot = tk.Menu(mo)
+        self.__theme_png = get_png("theme.png")
         for label in ("System", "Light", "Dark"):
             mot.add_radiobutton(
                 label=label, variable=parent.cur_theme, command=parent.set_theme
             )
-        mo.add_cascade(menu=mot, label=MsgCat.translate("Theme"))
+        mo.add_cascade(
+            menu=mot,
+            label=MsgCat.translate("Theme"),
+            image=self.__theme_png,
+            compound="left",
+        )
 
         # Options -> OUT mode
         mo.add_checkbutton(label="OUT Mode", variable=outmode)
 
         # View
         self.vt = vt = tk.Menu()
-        self.add_cascade(menu=vt, label=MsgCat.translate("View"))
+        self.add_cascade(menu=vt, label=MsgCat.translate("View"), underline=0)
 
         # View -> Sort Exports By
         self.vse = vse = tk.Menu()
-        for sorter in SortOrder:
+        self.__sort_png = get_png("sort.png")
+        self.__sort_ord_asc_png = get_png("sort_ord_asc.png")
+        self.__sort_ord_desc_png = get_png("sort_ord_desc.png")
+        self.__sort_name_asc_png = get_png("sort_name_asc.png")
+        self.__sort_name_desc_png = get_png("sort_name_desc.png")
+        sorter_imgs = (
+            self.__sort_name_asc_png,
+            self.__sort_name_desc_png,
+            self.__sort_ord_asc_png,
+            self.__sort_ord_desc_png,
+        )
+        for sorter, img in zip(SortOrder, sorter_imgs):
             vse.add_radiobutton(
                 label=MsgCat.translate(sorter.value),
                 variable=sort_order,
                 command=parent.exports.sort,
+                image=img,
+                compound="left",
             )
-        vt.add_cascade(menu=vse, label=MsgCat.translate("Sort Exports By"))
+        vt.add_cascade(
+            menu=vse,
+            label=MsgCat.translate("Sort Exports By"),
+            image=self.__sort_png,
+            compound="left",
+        )
 
         # Tools
         self.mt = mt = tk.Menu()
-        self.add_cascade(menu=mt, label=MsgCat.translate("Tools"))
+        self.add_cascade(menu=mt, label=MsgCat.translate("Tools"), underline=0)
 
         # Tools -> Demangler
         mt.add_command(label="Demangler", command=lambda *_: DemanglerWindow(parent))
 
         # Help
         self.mh = mh = tk.Menu()
-        self.add_cascade(menu=mh, label=MsgCat.translate("Help"))
+        self.add_cascade(menu=mh, label=MsgCat.translate("Help"), underline=0)
 
         # Help -> About
+        self.__info_png = get_png("info.png")
         mh.add_command(
-            label=MsgCat.translate("About"), command=lambda *_: AboutWindow(parent)
+            accelerator="F1",
+            command=self.open_about,
+            compound="left",
+            image=self.__info_png,
+            label=MsgCat.translate("About"),
         )
+        self.bind_all("<F1>", self.open_about)
 
     def change_lang(self, *_):
         lc = self.__locale
@@ -108,3 +151,6 @@ class TopMenu(tk.Menu):
             self.fop.add_command(
                 label=path, command=lambda *_: self.__parent.picker.load(path=path)
             )
+
+    def open_about(self, *_):
+        AboutWindow(self.__parent)
