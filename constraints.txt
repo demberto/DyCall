@@ -10,6 +10,7 @@ ttkbootstrap==1.7.1
 
 # Dev dependencies
 bandit==1.7.4
+colour==0.1.5
 flake8==4.0.1
 flake8-docstrings==1.6.0
 flake8-typing-imports==1.12.0

@@ -12,10 +12,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Support for recent files via **File** > **Open Recent**.
 - GitHub project repo link to **About** page.
 - Script to pad square images.
-
-### Changed
-
-- Added emojis to README.
+- Icons to certain top menu options.
+- `F1` accelerator to open **About** page.
+- Emojis to README.
+- Script to recolor icons.
 
 ### Fixed
 
