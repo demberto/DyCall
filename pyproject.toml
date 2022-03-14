@@ -17,6 +17,7 @@ max-statements = 60
 
 [tool.pylint.'MESSAGE_CONTROL']
 disable = [
+  "duplicate-code",
   "invalid-name",
   "logging-too-many-args",
   "missing-module-docstring",
@@ -24,7 +25,8 @@ disable = [
   "missing-function-docstring",
   "too-many-ancestors",
   "too-many-instance-attributes",
-  "too-many-arguments"
+  "too-many-arguments",
+  "unspecified-encoding"
 ]
 
 [tool.pylint.LOGGING]
