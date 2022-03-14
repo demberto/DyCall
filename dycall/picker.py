@@ -45,14 +45,13 @@ class PickerFrame(ttk.Labelframe):
         self.__exports = exports
         self.__recents = recents
         self.os_name = platform.system()
-        is_file = self.register(self.validate)
 
         # Library path entry
         self.le = le = ttk.Entry(
             self,
             textvariable=self.__lib_path,
             validate="focusout",
-            validatecommand=(is_file, "%P"),
+            validatecommand=(self.register(self.validate), "%P"),
         )
         le.bind("<Return>", self.on_enter)
         le.pack(fill="x", expand=True, side="left", padx=5, pady=5)
@@ -74,21 +73,21 @@ class PickerFrame(ttk.Labelframe):
         self.load()
         self.le.icursor("end")
 
-    def validate(self, s) -> bool:
-        ret = pathlib.Path(s).is_file()
-        exports_frame = self.__parent.exports
-        function_frame = self.__parent.function
-        if ret:
-            if s == self.__lib_path.get():
-                exports_frame.set_state(True)
+    def validate(self, s: str) -> bool:
+        if s:
+            ret = ctypes.util.find_library(s)
+            exports_frame = self.__parent.exports
+            function_frame = self.__parent.function
+            if ret:
+                if ret == self.__lib_path.get():
+                    exports_frame.set_state(True)
+                else:
+                    self.load(path=ret)
             else:
-                # TODO Changing the library path directly doesn't invoke this
-                # * Return needs to pressed for load to get called actually
-                self.load(path=s)
-        else:
-            exports_frame.set_state(False)
-            function_frame.set_state(False)
-        return ret
+                exports_frame.set_state(False)
+                function_frame.set_state(False)
+            return bool(ret)
+        return True
 
     def browse(self) -> None:
         file = filedialog.askopenfilename(
@@ -105,13 +104,13 @@ class PickerFrame(ttk.Labelframe):
             self.__selected_export.set("")
             self.load(True, file)
 
-    def load(self, dont_search=False, path=None) -> None:
+    def load(self, dont_search: bool = False, path: str = None) -> None:
         def failure():
             self.__is_loaded.set(False)
             self.__status.set("Load failed")
             Messagebox.show_error(f"Failed to load binary {path}", "Load failed")
 
-        if path:
+        if path is not None:
             self.__lib_path.set(path)
         else:
             path = self.__lib_path.get()

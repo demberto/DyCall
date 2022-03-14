@@ -17,8 +17,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Emojis to README.
 - Script to recolor icons.
 
+### Changed
+
+- **Exports** combobox is now editable.
+
 ### Fixed
 
-- CI actions
+- CI actions.
+- Entry point name.
+- **Picker** entry validation logic.
 
 ## 0.0.3 - Initial public release
