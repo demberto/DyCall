@@ -21,8 +21,8 @@ class DemanglerWindow(tk.Toplevel):
     def __init__(self, parent: tk.Window):
         log.debug("Initialising")
         self.parent = parent
-        self.mangled_name = mangled_var = tk.StringVar()
-        self.demangled_name = demangled_var = tk.StringVar()
+        self.mangled_name = mangled_name = tk.StringVar()
+        self.demangled_name = demangled_name = tk.StringVar()
 
         super().__init__(title="Demangler")
         self.withdraw()
@@ -37,11 +37,16 @@ class DemanglerWindow(tk.Toplevel):
         self.rowconfigure(1, minsize=45, weight=1)
 
         self.ml = ml = ttk.Label(self, text=MsgCat.translate("Name"))
-        self.me = me = ttk.Entry(self, textvariable=mangled_var)
-        self.mb = mb = ttk.Button(self, text="Demangle", command=self.demangle)
+        self.me = me = ttk.Entry(self, textvariable=mangled_name)
+        self.mb = mb = ttk.Button(
+            self, text="Demangle", command=self.demangle, state="disabled"
+        )
         self.dl = dl = ttk.Label(self, text="Demangled")
-        self.de = de = ttk.Entry(self, textvariable=demangled_var, state="readonly")
-        self.db = db = CopyButton(self, demangled_var, state="disabled")
+        self.de = de = ttk.Entry(self, textvariable=demangled_name, state="readonly")
+        self.db = db = CopyButton(self, demangled_name, state="disabled")
+
+        # https://www.tutorialspoint.com/how-do-i-get-an-event-callback-when-a-tkinter-entry-widget-is-modified
+        mangled_name.trace_add("write", self.set_state)
 
         ml.grid(row=0, column=0, padx=5, pady=10, sticky="w")
         me.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
@@ -52,6 +57,12 @@ class DemanglerWindow(tk.Toplevel):
 
         self.deiconify()
         log.debug("Initialised")
+
+    def set_state(self, *_):
+        if self.me.get():
+            self.mb.configure(state="normal")
+        else:
+            self.mb.configure(state="disabled")
 
     def demangle(self):
         mangled = self.mangled_name.get()
