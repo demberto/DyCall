@@ -41,9 +41,14 @@ class ExportsFrame(ttk.Labelframe):
         self.__displayed_exports: dict[int, str] = {}
 
         self.cb = cb = ttk.Combobox(
-            self, state="disabled", textvariable=selected_export
+            self,
+            state="disabled",
+            textvariable=selected_export,
+            validate="focusout",
+            validatecommand=(self.register(self.cb_validate), "%P"),
         )
         cb.bind("<<ComboboxSelected>>", self.cb_selected)
+        cb.bind("<Return>", lambda *_: self.cb.validate)
         cb.pack(fill="x", padx=5, pady=5)
 
         log.debug("Initialised")
@@ -61,6 +66,25 @@ class ExportsFrame(ttk.Labelframe):
         else:
             func_frame.set_state(False)
 
+    def cb_validate(self, *_) -> bool:
+        """Callback to handle keyboard events on **Exports** combobox.
+
+        Activates `FunctionFrame` when the text in the combobox
+        is a valid export name. Deactivates it otherwise.
+        """
+        try:
+            # Don't validate if combobox dropdown arrow was pressed
+            self.cb.state()[1] == "pressed"
+        except IndexError:
+            exp = self.cb.get()
+            if exp:
+                if exp in self.__displayed_exports.values():
+                    self.cb_selected()
+                    return True
+                self.__parent.function.set_state(False)
+                return False
+        return True
+
     def set_state(self, activate=True):
         """Activates/deactivates **Exports** combobox.
 
@@ -69,7 +93,7 @@ class ExportsFrame(ttk.Labelframe):
                 False. Defaults to True.
         """
         log.debug("Called with activate=%s", activate)
-        state = "readonly" if activate else "disabled"
+        state = "normal" if activate else "disabled"
         self.cb.configure(state=state)
 
     def set_cb_values(self):
