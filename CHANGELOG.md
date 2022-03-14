@@ -20,6 +20,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Changed
 
 - **Exports** combobox is now editable.
+- **Demangler**'s *Demangle* button works only when text is present.
 
 ### Fixed
 
