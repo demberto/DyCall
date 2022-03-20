@@ -2,13 +2,17 @@
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 
 import ttkbootstrap as tk
+from tktooltip import ToolTip
 from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
+from ttkbootstrap.tableview import Tableview
 
-from dycall.util import DemangleError, PlatformUnsupportedError, demangle
+from dycall.types import Export, PEExport
+from dycall.util import get_png, set_app_icon
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +28,7 @@ class ExportsFrame(ttk.Labelframe):
         is_loaded: tk.BooleanVar,
         is_native: tk.BooleanVar,
         is_reinitialised: tk.BooleanVar,
-        exports: dict[int, str],
+        exports: list[Export],
     ):
         log.debug("Initalising")
 
@@ -38,20 +42,43 @@ class ExportsFrame(ttk.Labelframe):
         self.__is_native = is_native
         self.__is_reinitialised = is_reinitialised
         self.__exports = exports
-        self.__displayed_exports: dict[int, str] = {}
+        self.__export_names: list[str] = []
 
+        cb_validator = self.register(self.cb_validate)
         self.cb = cb = ttk.Combobox(
             self,
             state="disabled",
             textvariable=selected_export,
             validate="focusout",
-            validatecommand=(self.register(self.cb_validate), "%P"),
+            validatecommand=(cb_validator, "%P"),
         )
+        # ! cb.bind("<Return>", lambda *_: self.cb_validate)  # Doesn't work
         cb.bind("<<ComboboxSelected>>", self.cb_selected)
-        cb.bind("<Return>", lambda *_: self.cb.validate)
+
+        self.__list_png = get_png("list.png")
+        self.lb = lb = ttk.Label(self, image=self.__list_png)
+        lb.bind("<Enter>", lambda *_: self.show_lb_tooltip())
+        lb.bind("<ButtonRelease-1>", lambda *_: status.set("Load a library first!"))
+
+        lb.pack(padx=(0, 5), pady=5, side="right")
         cb.pack(fill="x", padx=5, pady=5)
 
         log.debug("Initialised")
+
+    def show_lb_tooltip(self):
+        if self.__parent.style.theme_use() == "darkly":
+            fg = "#ffffff"
+            bg = "#1c1c1c"
+        else:
+            fg = bg = None
+        ToolTip(
+            widget=self.lb,
+            msg=MsgCat.translate("List of exports"),
+            delay=1,
+            follow=False,
+            fg=fg,
+            bg=bg,
+        )
 
     def cb_selected(self, *_):
         """Callback to handle clicks on **Exports** combobox.
@@ -72,13 +99,14 @@ class ExportsFrame(ttk.Labelframe):
         Activates `FunctionFrame` when the text in the combobox
         is a valid export name. Deactivates it otherwise.
         """
+        log.debug("Validating Exports combobox")
         try:
             # Don't validate if combobox dropdown arrow was pressed
             self.cb.state()[1] == "pressed"
         except IndexError:
             exp = self.cb.get()
             if exp:
-                if exp in self.__displayed_exports.values():
+                if exp in self.__export_names:
                     self.cb_selected()
                     return True
                 self.__parent.function.set_state(False)
@@ -98,42 +126,29 @@ class ExportsFrame(ttk.Labelframe):
 
     def set_cb_values(self):
         """Demangles and sets the export names to the **Exports** combobox."""
-        exports = self.__displayed_exports
+        exports = self.__exports
         if not self.__is_reinitialised.get() or self.__is_loaded.get():
-            exports.clear()
-            exports.update(self.__exports.copy())
             num_exports = len(exports)
             log.info("Found %d exports", num_exports)
             self.__status.set(f"{num_exports} exports found")
             failed = []
-            for ord_, exp in exports.items():
-                if exp:
-                    try:
-                        log.debug("Demangling %s", exp)
-                        demangled = demangle(exp)
-                    except DemangleError as exc:
-                        log.exception(exc)
-                        failed.append(exp)
-                    except PlatformUnsupportedError as exc:
-                        log.exception(exc)
-                        failed = list(exports.values())
-                        break
-                    else:
-                        exports[ord_] = demangled
-                else:
-                    exports[ord_] = f"@{ord_}"
+            for exp in exports:
+
+                if isinstance(exp, PEExport):
+                    if hasattr(exp, "exc"):
+                        failed.append(exp.name)
             if failed:
                 Messagebox.show_warning(
                     f"These export names couldn't be demangled: {failed}",
                     "Demangle Errors",
                     parent=self.__parent,
                 )
-        export_names = tuple(exports.values())
+        self.__export_names = names = list(e.demangled_name for e in exports)
         self.set_state()
-        self.cb.configure(values=export_names)
+        self.cb.configure(values=names)
         selected_export = self.__selected_export.get()
         if selected_export:
-            if selected_export not in export_names:
+            if selected_export not in names:
                 err = "%s not found in export names"
                 log.error(err, selected_export)
                 Messagebox.show_error(
@@ -143,23 +158,52 @@ class ExportsFrame(ttk.Labelframe):
             else:
                 # Activate function frame when export name is passed from command line
                 self.cb_selected()
+        self.lb.configure(cursor="hand2")
+        self.lb.bind(
+            "<ButtonRelease-1>", lambda *_: ExportsTreeView(self.__exports), add=False
+        )
 
     def sort(self, *_):
         if self.__is_loaded.get():
             sorter = self.__sort_order.get()
             log.debug("Sorting w.r.t. %s", sorter)
-            exports = self.__displayed_exports
-            if sorter.startswith("Ordinal"):
-                items = exports.items()
-                if sorter == "Ordinal (ascending)":
-                    names = sorted(items, key=lambda item: item[0])
-                elif sorter == "Ordinal (descending)":
-                    names = sorted(items, key=lambda item: item[0], reverse=True)
-                names = list(zip(*names))[1]  # https://stackoverflow.com/a/25050572
-            elif sorter.startswith("Name"):
-                names = list(exports.values())
-                if sorter == "Name (ascending)":
-                    names.sort()
-                elif sorter == "Name (descending)":
-                    names.sort(reverse=True)
+            names = self.__export_names
+            if sorter == "Name (ascending)":
+                names.sort()
+            elif sorter == "Name (descending)":
+                names.sort(reverse=True)
             self.cb.configure(values=names)
+        self.__status.set("Sort order changed")
+
+
+class ExportsTreeView(tk.Toplevel):
+    def __init__(self, exports: list[Export]):
+        log.debug("Initialising")
+        super().__init__(title=MsgCat.translate("Exports"), size=(400, 500))
+        set_app_icon(self)
+        coldata = [
+            "Address",
+            "Name",
+            {"text": "Demangled", "stretch": True},
+        ]
+        is_pe = isinstance(exports[0], PEExport)
+        if is_pe:
+            coldata.insert(0, "Ordinal")
+        tv = Tableview(
+            self,
+            searchable=True,
+            autofit=True,
+            coldata=coldata,
+            paginated=True,
+            pagesize=25,
+        )
+        tv.pack(fill="both", expand=True)
+        for e in exports:
+            values = [e.address, e.name, e.demangled_name]  # type: ignore
+            if is_pe:
+                if TYPE_CHECKING:
+                    assert isinstance(e, PEExport)  # nosec
+                values.insert(0, e.ordinal)
+            tv.insert_row(values=values)
+        tv.load_table_data()
+        log.debug("Initialised")

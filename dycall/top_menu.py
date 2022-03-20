@@ -89,15 +89,11 @@ class TopMenu(tk.Menu):
         # View -> Sort Exports By
         self.vse = vse = tk.Menu()
         self.__sort_png = get_png("sort.png")
-        self.__sort_ord_asc_png = get_png("sort_ord_asc.png")
-        self.__sort_ord_desc_png = get_png("sort_ord_desc.png")
         self.__sort_name_asc_png = get_png("sort_name_asc.png")
         self.__sort_name_desc_png = get_png("sort_name_desc.png")
         sorter_imgs = (
             self.__sort_name_asc_png,
             self.__sort_name_desc_png,
-            self.__sort_ord_asc_png,
-            self.__sort_ord_desc_png,
         )
         for sorter, img in zip(SortOrder, sorter_imgs):
             vse.add_radiobutton(

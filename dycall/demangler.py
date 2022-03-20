@@ -6,13 +6,7 @@ from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
-from dycall.util import (
-    CopyButton,
-    DemangleError,
-    PlatformUnsupportedError,
-    demangle,
-    set_app_icon,
-)
+from dycall.util import CopyButton, DemangleError, demangle, set_app_icon
 
 log = logging.getLogger(__name__)
 
@@ -72,11 +66,6 @@ class DemanglerWindow(tk.Toplevel):
             log.exception(exc)
             Messagebox.show_error(
                 f"Failed to demangle '{mangled}'", "Demangling Failed"
-            )
-        except PlatformUnsupportedError as exc:
-            log.exception(exc)
-            Messagebox.show_error(
-                "Demangling is not supported on this platform", "Unsupported Platform"
             )
         else:
             self.demangled_name.set(d)
