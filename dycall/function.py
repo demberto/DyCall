@@ -190,8 +190,10 @@ class FunctionFrame(ttk.Frame):
                 self.at.disable_bindings(binding)
             self.bind_run_button()
         else:
-            for w in (self.rc, self.cc, self.rb):
+            for w in (self.rc, self.rb):
                 w.configure(state="disabled")
+            if self.__is_windows:
+                self.cc.configure(state="disabled")
             self.at.disable_bindings()
             self.unbind_run_button()
 

@@ -29,7 +29,7 @@ from dycall.output import OutputFrame
 from dycall.picker import PickerFrame
 from dycall.status_bar import StatusBarFrame
 from dycall.top_menu import TopMenu
-from dycall.types import SortOrder
+from dycall.types import CallConvention, Export, SortOrder
 from dycall.util import set_app_icon
 
 log = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ dirpath = pathlib.Path(__file__).parent.resolve()
 class App(tk.Window):  # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        conv: str = "",
+        conv: str = CallConvention.Cdecl.value,
         exp: str = "",
         lib: str = "",
         ret: str = "",
@@ -57,7 +57,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         arguments aren't the default values used by DyCall interface.
 
         Args:
-            conv (str, optional): Calling convention. Defaults to "".
+            conv (str, optional): Calling convention. Defaults to "cdecl".
             exp (str, optional): Name of exported function. Defaults to "".
             lib (str, optional): Path/name of the library. Defaults to "".
             ret (str, optional): Return type. See `ParameterType`. Defaults to "".
@@ -69,7 +69,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         """  # noqa: D403
         log.debug("Initialising")
         self.__rows_to_add: Final = rows
-        self.__export_names: dict[int, str] = {}
+        self.__exports: list[Export] = []
         self.__recents: Final[collections.deque] = collections.deque(maxlen=10)
 
         # No need to save a preference in the config when
@@ -77,7 +77,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.__dont_save_locale = False
         self.__dont_save_out_mode = False
 
-        super().__init__()
+        super().__init__(iconphoto=None)
         self.withdraw()
 
         log.debug("Loading config")
@@ -135,7 +135,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.__is_reinitialised = tk.BooleanVar(value=False)
         self.__use_out_mode = tk.BooleanVar(value=out_mode_or_not)
         self.__locale = tk.StringVar(value=locale_to_use)
-        self.__sort_order = tk.StringVar(value=SortOrder.OrdinalAscending.value)
+        self.__sort_order = tk.StringVar(value=SortOrder.NameAscending.value)
         self.__library_path = tk.StringVar(value=lib)
         self.__selected_export = tk.StringVar(value=exp)
         self.__call_convention = tk.StringVar(value=conv)
@@ -192,7 +192,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__is_loaded,
             self.__is_native,
             self.__is_reinitialised,
-            self.__export_names,
+            self.__exports,
         )
         self.picker = pf = PickerFrame(
             self,
@@ -203,7 +203,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__is_loaded,
             self.__is_native,
             self.__default_title,
-            self.__export_names,
+            self.__exports,
             self.__recents,
         )
         self.top_menu = tm = TopMenu(

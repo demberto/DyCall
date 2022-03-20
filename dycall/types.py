@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import abc
 import dataclasses
 import enum
 import typing
@@ -23,6 +24,8 @@ from ctypes import (
     c_wchar_p,
 )
 from typing import Any, Union
+
+from dycall.util import DemangleError, demangle
 
 _CType = Union[
     c_bool,
@@ -207,5 +210,37 @@ class RunResult:
 class SortOrder(enum.Enum):
     NameAscending = "Name (ascending)"
     NameDescending = "Name (descending)"
-    OrdinalAscending = "Ordinal (ascending)"
-    OrdinalDescending = "Ordinal (descending)"
+
+
+@dataclasses.dataclass
+class Export(abc.ABC):
+    """Constains all the required information about an exported function.
+
+    LIEF doesn't provide a standard platform-independent way to get this
+    information. Its better to have a DyCall-specific type; also it is
+    used almost everywhere.
+    """
+
+    address: int
+    name: str
+
+
+@dataclasses.dataclass
+class PEExport(Export):
+    ordinal: int
+
+    def __post_init__(self):
+        """Calculate a demangled/displayed name."""
+        if self.name:
+            try:
+                self.demangled_name = demangle(self.name)
+            except DemangleError as exc:
+                self.exc = exc
+        else:
+            # Ordinal-only exports
+            self.demangled_name = f"@{self.ordinal}"
+
+
+@dataclasses.dataclass
+class ELFExport(Export):
+    demangled_name: str

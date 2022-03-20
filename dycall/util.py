@@ -17,7 +17,6 @@ try:
 except ImportError:
     from typing_extensions import Final  # type: ignore
 
-import cxxfilt
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
 
@@ -33,12 +32,8 @@ class DemangleError(Exception):
     """Raised when demangling fails due to an invalid name or an internal error."""
 
 
-class PlatformUnsupportedError(Exception):
-    """Raised when the OS is neither Windows nor has a libc and libcxx library."""
-
-
 def demangle(exp: str) -> str:
-    """On Linux & MacOS, cxxfilt is used, which internally uses `libcxx.__cxa_demangle`.
+    """On Linux & MacOS, LIEF already provides the demangled name.
 
     On Windows, the DbgHelp API function `UnDecorateSymbolNameW` is used.
     MSDN: https://docs.microsoft.com/windows/win32/api/dbghelp/nf-dbghelp-undecoratesymbolnamew
@@ -53,13 +48,7 @@ def demangle(exp: str) -> str:
             if hr:
                 return buf.value
             raise DemangleError
-        return exp
-    try:
-        return cxxfilt.demangle(exp)
-    except cxxfilt.LibraryNotFound as e:
-        raise PlatformUnsupportedError from e
-    except OSError as e:
-        raise DemangleError from e
+    return exp
 
 
 # * Custom widgets

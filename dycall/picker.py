@@ -14,6 +14,8 @@ from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
+from dycall.types import ELFExport, Export, PEExport
+
 log = logging.getLogger(__name__)
 
 
@@ -28,7 +30,7 @@ class PickerFrame(ttk.Labelframe):
         is_loaded: tk.BooleanVar,
         is_native: tk.BooleanVar,
         default_title: str,
-        exports: dict[int, str],
+        exports: list[Export],
         recents: collections.deque,
     ):
         log.debug("Initialising")
@@ -110,6 +112,7 @@ class PickerFrame(ttk.Labelframe):
             self.__status.set("Load failed")
             Messagebox.show_error(f"Failed to load binary {path}", "Load failed")
 
+        # Find absolute path
         if path is not None:
             self.__lib_path.set(path)
         else:
@@ -128,12 +131,6 @@ class PickerFrame(ttk.Labelframe):
             return
         self.__parent.lib = lib
         self.__is_loaded.set(True)
-        if path not in self.__recents:
-            self.__recents.append(path)
-            self.__parent.top_menu.update_recents(redraw=True)
-        else:
-            self.__recents.remove(path)
-            self.__recents.appendleft(path)
         self.__status.set("Loaded successfully")
         lib_name = str(pathlib.Path(path).name)
         self.__parent.title(f"{self.__default_title} - {lib_name}")
@@ -142,7 +139,6 @@ class PickerFrame(ttk.Labelframe):
         fmt = lib.format
         fmts = lief.EXE_FORMATS
 
-        # pylint: disable-next=too-many-boolean-expressions
         if (
             (os == "Windows" and fmt == fmts.PE)
             or (os == "Darwin" and fmt == fmts.MACHO)
@@ -151,15 +147,27 @@ class PickerFrame(ttk.Labelframe):
             self.__is_native.set(True)
         else:
             Messagebox.show_warning(
-                "Not a native binary",
                 f"{path} is not a native binary. You can view "
                 "the exported functions but cannot call them.",
+                "Not a native binary",
             )
             self.__is_native.set(False)
 
         self.__exports.clear()
-        for exp in lib.get_export().entries:
-            ord_, name = exp.ordinal, exp.name
-            self.__exports[ord_] = name
-            log.debug("Found export name=%s, ordinal=%d", name, ord_)
+        if fmt == fmts.PE:
+            for exp in lib.get_export().entries:
+                self.__exports.append(PEExport(exp.address, exp.name, exp.ordinal))
+        elif fmt == fmts.ELF:
+            for exp in lib.exported_symbols:
+                self.__exports.append(
+                    ELFExport(exp.value, exp.name, exp.demangled_name)
+                )
         self.__parent.exports.set_cb_values()
+
+        # Update recents
+        if path not in self.__recents:
+            self.__recents.append(path)
+        else:
+            self.__recents.remove(path)
+            self.__recents.appendleft(path)
+        self.__parent.top_menu.update_recents(redraw=True)

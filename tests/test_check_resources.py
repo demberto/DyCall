@@ -31,8 +31,6 @@ def test_check_images():
         "sort.png",
         "sort_name_asc.png",
         "sort_name_desc.png",
-        "sort_ord_asc.png",
-        "sort_ord_desc.png",
         "theme.png",
         "translate.png",
     ):

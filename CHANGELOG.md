@@ -16,6 +16,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `F1` accelerator to open **About** page.
 - Emojis to README.
 - Script to recolor icons.
+- Exports treeview to get detailed information.
+- Ability to sort exports (ascending/descending).
 
 ### Changed
 
@@ -27,5 +29,6 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - CI actions.
 - Entry point name.
 - **Picker** entry validation logic.
+- Many fixes for Linux.
 
 ## 0.0.3 - Initial public release

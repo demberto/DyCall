@@ -26,6 +26,8 @@ disable = [
   "too-many-ancestors",
   "too-many-instance-attributes",
   "too-many-arguments",
+  "too-many-boolean-expressions",
+  "too-many-branches",
   "unspecified-encoding"
 ]
 
@@ -45,7 +47,7 @@ testpaths = "tests"
 
 [tool.tbump]
 # Uncomment this if your project is hosted on GitHub:
-# github_url = "https://github.com/<user or organization>/<project>/"
+github_url = "https://github.com/demberto/DyCall/"
 
 [tool.tbump.version]
 current = "0.0.3"
