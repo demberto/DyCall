@@ -57,8 +57,6 @@ def main():
 
     launch_args = vars(args)
     _ = launch_args.pop("log", None)  # Logging is handled hee itself
-    if os == "Linux":
-        launch_args["scaling"] = 2.0
     App(**launch_args).mainloop()
 
 

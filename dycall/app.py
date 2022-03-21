@@ -29,7 +29,7 @@ from dycall.output import OutputFrame
 from dycall.picker import PickerFrame
 from dycall.status_bar import StatusBarFrame
 from dycall.top_menu import TopMenu
-from dycall.types import Export, SortOrder
+from dycall.types import CallConvention, Export, SortOrder
 from dycall.util import set_app_icon
 
 log = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ dirpath = pathlib.Path(__file__).parent.resolve()
 class App(tk.Window):  # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        conv: str = "",
+        conv: str = CallConvention.Cdecl.value,
         exp: str = "",
         lib: str = "",
         ret: str = "",
@@ -57,7 +57,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         arguments aren't the default values used by DyCall interface.
 
         Args:
-            conv (str, optional): Calling convention. Defaults to "".
+            conv (str, optional): Calling convention. Defaults to "cdecl".
             exp (str, optional): Name of exported function. Defaults to "".
             lib (str, optional): Path/name of the library. Defaults to "".
             ret (str, optional): Return type. See `ParameterType`. Defaults to "".

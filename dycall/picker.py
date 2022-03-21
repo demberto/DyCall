@@ -160,7 +160,7 @@ class PickerFrame(ttk.Labelframe):
         elif fmt == fmts.ELF:
             for exp in lib.exported_symbols:
                 self.__exports.append(
-                    ELFExport(exp.address, exp.name, exp.demangled_name)
+                    ELFExport(exp.value, exp.name, exp.demangled_name)
                 )
         self.__parent.exports.set_cb_values()
 
