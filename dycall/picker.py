@@ -78,16 +78,16 @@ class PickerFrame(ttk.Labelframe):
     def validate(self, s: str) -> bool:
         if s:
             ret = ctypes.util.find_library(s)
-            exports_frame = self.__parent.exports
-            function_frame = self.__parent.function
             if ret:
                 if ret == self.__lib_path.get():
-                    exports_frame.set_state(True)
+                    # Enable
+                    self.event_generate("<<ToggleExportsFrame>>", state=1)
                 else:
                     self.load(path=ret)
             else:
-                exports_frame.set_state(False)
-                function_frame.set_state(False)
+                # Disable
+                self.event_generate("<<ToggleExportsFrame>>", state=0)
+                self.event_generate("<<ToggleFunctionFrame>>", state=0)
             return bool(ret)
         return True
 
@@ -162,7 +162,7 @@ class PickerFrame(ttk.Labelframe):
                 self.__exports.append(
                     ELFExport(exp.value, exp.name, exp.demangled_name)
                 )
-        self.__parent.exports.set_cb_values()
+        self.event_generate("<<PopulateExports>>")
 
         # Update recents
         if path not in self.__recents:
@@ -170,4 +170,4 @@ class PickerFrame(ttk.Labelframe):
         else:
             self.__recents.remove(path)
             self.__recents.appendleft(path)
-        self.__parent.top_menu.update_recents(redraw=True)
+        self.event_generate("<<UpdateRecents>>")

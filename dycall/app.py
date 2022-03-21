@@ -142,6 +142,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.__return_type = tk.StringVar(value=ret)
         self.__output_text = tk.StringVar()
         self.__status_text = tk.StringVar(value="Choose a library")
+        self.__exc_type = tk.StringVar()
 
         self.geometry(config["geometry"])
         self.deiconify()
@@ -166,6 +167,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.output = of = OutputFrame(
             self,
             self.__output_text,
+            self.__exc_type,
         )
         self.status_bar = sf = StatusBarFrame(
             self,
@@ -181,6 +183,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__status_text,
             self.__use_out_mode,
             self.__is_running,
+            self.__exc_type,
             self.__rows_to_add,
         )
         self.exports = ef = ExportsFrame(

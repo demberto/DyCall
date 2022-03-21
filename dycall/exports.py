@@ -63,6 +63,12 @@ class ExportsFrame(ttk.Labelframe):
         lb.pack(padx=(0, 5), pady=5, side="right")
         cb.pack(fill="x", padx=5, pady=5)
 
+        self.event_add("<<PopulateExports>>", "None")
+        self.event_add("<<ToggleExportsFrame>>", "None")
+        self.bind_all("<<PopulateExports>>", lambda *_: self.set_cb_values())
+        self.bind_all(
+            "<<ToggleExportsFrame>>", lambda event: self.set_state(event.state == 1)
+        )
         log.debug("Initialised")
 
     def show_lb_tooltip(self):
@@ -87,11 +93,10 @@ class ExportsFrame(ttk.Labelframe):
         """
         log.debug("%s selected", self.__selected_export.get())
         self.__output.set("")
-        func_frame = self.__parent.function
         if self.__is_native.get():
-            func_frame.set_state()
+            self.event_generate("<<ToggleFunctionFrame>>", state=1)
         else:
-            func_frame.set_state(False)
+            self.event_generate("<<ToggleFunctionFrame>>", state=0)
 
     def cb_validate(self, *_) -> bool:
         """Callback to handle keyboard events on **Exports** combobox.
@@ -109,11 +114,11 @@ class ExportsFrame(ttk.Labelframe):
                 if exp in self.__export_names:
                     self.cb_selected()
                     return True
-                self.__parent.function.set_state(False)
+                self.event_generate("<<ToggleFunctionFrame>>", state=1)
                 return False
         return True
 
-    def set_state(self, activate=True):
+    def set_state(self, activate: bool = True):
         """Activates/deactivates **Exports** combobox.
 
         Args:

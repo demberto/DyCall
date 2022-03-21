@@ -14,7 +14,7 @@ from ttkbootstrap import ttk
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
 from dycall.runner import Runner
-from dycall.types import CALL_CONVENTIONS, PARAMETER_TYPES, Marshaller
+from dycall.types import CALL_CONVENTIONS, PARAMETER_TYPES, Marshaller, RunResult
 from dycall.util import DARK_THEME
 
 log = logging.getLogger(__name__)
@@ -32,6 +32,7 @@ class FunctionFrame(ttk.Frame):
         status: tk.StringVar,
         is_outmode: tk.BooleanVar,
         is_running: tk.BooleanVar,
+        exc_type: tk.StringVar,
         rows_to_add: int,
     ):
         super().__init__()
@@ -44,6 +45,7 @@ class FunctionFrame(ttk.Frame):
         self.__status = status
         self.__is_outmode = is_outmode
         self.__is_running = is_running
+        self.__exc_type = exc_type
         self.__res_q = queue.Queue()  # type: ignore
         self.__exc_q = queue.Queue()  # type: ignore
         self.__args: list[list[str]] = []
@@ -136,6 +138,11 @@ class FunctionFrame(ttk.Frame):
         rg.columnconfigure(0, weight=1)
         ag.rowconfigure(0, weight=1)
         ag.columnconfigure(0, weight=1)
+
+        self.event_add("<<ToggleFunctionFrame>>", "None")
+        self.bind_all(
+            "<<ToggleFunctionFrame>>", lambda event: self.set_state(event.state == 1)
+        )
 
     def table_end_insert_rows(self, event: NamedTuple = None, row: int = None):
         if event is not None:
@@ -240,7 +247,7 @@ class FunctionFrame(ttk.Frame):
 
     def process_queue(self):
         try:
-            exc = self.__exc_q.get_nowait()
+            exc: Exception = self.__exc_q.get_nowait()
         except queue.Empty:
             pass
         else:
@@ -248,12 +255,11 @@ class FunctionFrame(ttk.Frame):
             raise exc
 
         try:
-            result = self.__res_q.get_nowait()
+            result: RunResult = self.__res_q.get_nowait()
         except queue.Empty:
             self.after(100, self.process_queue)
         else:
-            output_frame = self.__parent.output
-            output_frame.configure(text="Output")
+            self.event_generate("<<OutputSuccess>>", when="tail")
             self.__status.set("Operation successful")
             ret = Marshaller.pytype2str(result.ret)
             self.__output.set(ret)
@@ -265,8 +271,11 @@ class FunctionFrame(ttk.Frame):
     def run(self, *_):
         def handle_exc(e: Exception, status: str):
             log.exception(e)
-            etype = type(e).__name__
-            self.__parent.output.configure(text=etype)
+            self.__exc_type.set(type(e).__name__)
+            # ! Cannot pass an arbitrary string directly even though Tk supports it
+            # https://stackoverflow.com/a/21234342
+            # https://bugs.python.org/issue3405
+            self.event_generate("<<OutputException>>")
             self.__output.set(str(e))
             self.__status.set(status)
             self.activate_copy_button(bootstyle="danger")
