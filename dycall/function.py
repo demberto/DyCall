@@ -15,6 +15,7 @@ from ttkbootstrap.localization import MessageCatalog as MsgCat
 
 from dycall.runner import Runner
 from dycall.types import CALL_CONVENTIONS, PARAMETER_TYPES, Marshaller
+from dycall.util import DARK_THEME
 
 log = logging.getLogger(__name__)
 
@@ -91,6 +92,14 @@ class FunctionFrame(ttk.Frame):
             data=self.__args,
             paste_insert_column_limit=True,
             show_top_left=False,
+        )
+        if parent.style.theme_use() == DARK_THEME:
+            at.change_theme("dark blue")
+        at.bind(
+            "<<ThemeChanged>>",
+            lambda _: at.change_theme("dark blue")
+            if parent.style.theme_use() == DARK_THEME
+            else at.change_theme(),
         )
         at.extra_bindings("end_edit_cell", self.table_end_edit_cell)
         at.extra_bindings("end_insert_rows", self.table_end_insert_rows)
