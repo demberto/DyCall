@@ -43,6 +43,8 @@ class TopMenu(tk.Menu):
             image=self.__clock_png,
             compound="left",
         )
+        self.event_add("<<UpdateRecents>>", "None")
+        self.bind_all("<<UpdateRecents>>", lambda *_: self.update_recents(True))
         self.update_recents()
 
         # Options

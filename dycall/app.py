@@ -30,7 +30,7 @@ from dycall.picker import PickerFrame
 from dycall.status_bar import StatusBarFrame
 from dycall.top_menu import TopMenu
 from dycall.types import CallConvention, Export, SortOrder
-from dycall.util import set_app_icon
+from dycall.util import DARK_THEME, LIGHT_THEME, set_app_icon
 
 log = logging.getLogger(__name__)
 
@@ -142,11 +142,12 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.__return_type = tk.StringVar(value=ret)
         self.__output_text = tk.StringVar()
         self.__status_text = tk.StringVar(value="Choose a library")
+        self.__exc_type = tk.StringVar()
 
         self.geometry(config["geometry"])
         self.deiconify()
-        self.init_widgets()
         self.set_theme()
+        self.init_widgets()
         log.debug("App initialised")
 
     @property
@@ -166,6 +167,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.output = of = OutputFrame(
             self,
             self.__output_text,
+            self.__exc_type,
         )
         self.status_bar = sf = StatusBarFrame(
             self,
@@ -181,6 +183,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__status_text,
             self.__use_out_mode,
             self.__is_running,
+            self.__exc_type,
             self.__rows_to_add,
         )
         self.exports = ef = ExportsFrame(
@@ -231,8 +234,8 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.function.destroy()
         self.output.destroy()
         self.status_bar.destroy()
+        self.set_theme()
         self.init_widgets()
-        self.set_theme(True)
 
     def destroy(self):
         """Warns the user if he tries to close when an operation is running.
@@ -282,35 +285,17 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         ypos = (s_height - w_height) // 2
         return f"+{xpos}+{ypos}"
 
-    def set_theme(self, table_only=False):
-        """Set's the theme used by DyCall.
-
-        Used by `refresh` with `table_only` set to `True`, because reinitialising
-        the widgets caused the table theme to be set again, rest of the widgets
-        don't need this.
-
-        Args:
-            table_only (bool, optional): Defaults to False.
-        """
-        log.debug("Setting theme, table_only=%s", table_only)
-
-        def go_dark():
-            if not table_only:
-                self.style.theme_use("darkly")
-            self.function.at.change_theme("dark blue")
-
-        def go_light():
-            if not table_only:
-                self.style.theme_use("yeti")
-            self.function.at.change_theme("light blue")
+    def set_theme(self):
+        """Set's the theme used by DyCall."""
+        log.debug("Setting theme")
 
         theme = self.cur_theme.get()
         if theme == "System":
             theme = darkdetect.theme()  # pylint: disable=assignment-from-none
 
         if theme == "Light":
-            go_light()
+            self.style.theme_use(LIGHT_THEME)
         elif theme == "Dark":
-            go_dark()
+            self.style.theme_use(DARK_THEME)
 
         log.debug("Theme '%s' set", theme)

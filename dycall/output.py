@@ -11,9 +11,16 @@ log = logging.getLogger(__name__)
 
 
 class OutputFrame(ttk.Labelframe):
-    def __init__(self, _: tk.Window, output: tk.StringVar):
+    def __init__(self, _: tk.Window, output: tk.StringVar, exc_type: tk.StringVar):
         log.debug("Initialising")
-        super().__init__(text=MsgCat.translate("Output"))
+        title = MsgCat.translate("Output")
+        super().__init__(text=title)
+        self.event_add("<<OutputSuccess>>", "None")
+        self.event_add("<<OutputException>>", "None")
+        self.bind_all("<<OutputSuccess>>", lambda *_: self.configure(text=title))
+        self.bind_all(
+            "<<OutputException>>", lambda _: self.configure(text=exc_type.get())
+        )
         self.oe = oe = ttk.Entry(
             self,
             font="TkFixedFont",

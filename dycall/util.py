@@ -107,3 +107,9 @@ def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]) -> None:
         wnd.iconbitmap(ico)
     else:
         wnd.iconphoto(False, get_png("dycall.png"))
+
+
+# * Constants
+
+LIGHT_THEME: Final = "yeti"
+DARK_THEME: Final = "darkly"
