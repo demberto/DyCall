@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 class PickerFrame(ttk.Labelframe):
     def __init__(
         self,
-        parent: tk.Window,
+        root: tk.Window,
         lib_path: tk.StringVar,
         selected_export: tk.StringVar,
         output: tk.StringVar,
@@ -36,7 +36,7 @@ class PickerFrame(ttk.Labelframe):
         log.debug("Initialising")
 
         super().__init__(text="Library")
-        self.__parent = parent
+        self.__root = root
         self.__lib_path = lib_path
         self.__selected_export = selected_export
         self.__output = output
@@ -81,13 +81,13 @@ class PickerFrame(ttk.Labelframe):
             if ret:
                 if ret == self.__lib_path.get():
                     # Enable
-                    self.__parent.event_generate("<<ToggleExportsFrame>>", state=1)
+                    self.__root.event_generate("<<ToggleExportsFrame>>", state=1)
                 else:
                     self.load(path=ret)
             else:
                 # Disable
-                self.__parent.event_generate("<<ToggleExportsFrame>>", state=0)
-                self.__parent.event_generate("<<ToggleFunctionFrame>>", state=0)
+                self.__root.event_generate("<<ToggleExportsFrame>>", state=0)
+                self.__root.event_generate("<<ToggleFunctionFrame>>", state=0)
             return bool(ret)
         return True
 
@@ -129,11 +129,11 @@ class PickerFrame(ttk.Labelframe):
         if not isinstance(lib, lief.Binary):
             failure()
             return
-        self.__parent.lib = lib
+        self.__root.lib = lib
         self.__is_loaded.set(True)
         self.__status.set("Loaded successfully")
         lib_name = str(pathlib.Path(path).name)
-        self.__parent.title(f"{self.__default_title} - {lib_name}")
+        self.__root.title(f"{self.__default_title} - {lib_name}")
 
         os = self.os_name
         fmt = lib.format
@@ -162,7 +162,7 @@ class PickerFrame(ttk.Labelframe):
                 self.__exports.append(
                     ELFExport(exp.value, exp.name, exp.demangled_name)
                 )
-        self.__parent.event_generate("<<PopulateExports>>")
+        self.__root.event_generate("<<PopulateExports>>")
 
         # Update recents
         if path not in self.__recents:
@@ -170,4 +170,4 @@ class PickerFrame(ttk.Labelframe):
         else:
             self.__recents.remove(path)
             self.__recents.appendleft(path)
-        self.__parent.event_generate("<<UpdateRecents>>")
+        self.__root.event_generate("<<UpdateRecents>>")

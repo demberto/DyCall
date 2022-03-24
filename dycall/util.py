@@ -67,6 +67,7 @@ class CopyButton(ttk.Button):  # pylint: disable=too-many-ancestors
         super().__init__(
             parent, text="⧉", command=self.copy, style="info-outline", *args, **kwargs
         )
+        self.bind("<Enter>", lambda *_: StaticThemedTooltip(self, "Copy", delay=0.5))
 
     def copy(self, *_):
         self.clipboard_clear()
@@ -77,12 +78,11 @@ class StaticThemedTooltip(tktooltip.ToolTip):
     def __init__(
         self,
         widget: tk.tk.Widget,
-        parent: tk.Window,
         msg: Union[str, Callable] = None,
         delay: float = 1,
     ):
         fg = bg = None
-        if parent.style.theme_use() == DARK_THEME:
+        if tk.Style().theme_use() == DARK_THEME:
             fg = "#ffffff"
             bg = "#1c1c1c"
         super().__init__(

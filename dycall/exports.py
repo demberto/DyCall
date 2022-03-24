@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import pathlib
 from typing import TYPE_CHECKING
 
 import ttkbootstrap as tk
@@ -19,7 +20,7 @@ log = logging.getLogger(__name__)
 class ExportsFrame(ttk.Labelframe):
     def __init__(
         self,
-        parent: tk.Window,
+        root: tk.Window,
         selected_export: tk.StringVar,
         sort_order: tk.StringVar,
         output: tk.StringVar,
@@ -27,12 +28,13 @@ class ExportsFrame(ttk.Labelframe):
         is_loaded: tk.BooleanVar,
         is_native: tk.BooleanVar,
         is_reinitialised: tk.BooleanVar,
+        lib_path: tk.StringVar,
         exports: list[Export],
     ):
         log.debug("Initalising")
 
         super().__init__(text=MsgCat.translate("Exports"))
-        self.__parent = parent
+        self.__root = root
         self.__selected_export = selected_export
         self.__sort_order = sort_order
         self.__output = output
@@ -40,6 +42,7 @@ class ExportsFrame(ttk.Labelframe):
         self.__is_loaded = is_loaded
         self.__is_native = is_native
         self.__is_reinitialised = is_reinitialised
+        self.__lib_path = lib_path
         self.__exports = exports
         self.__export_names: list[str] = []
 
@@ -58,9 +61,7 @@ class ExportsFrame(ttk.Labelframe):
         self.lb = lb = ttk.Label(self, image=self.__list_png)
         lb.bind(
             "<Enter>",
-            lambda *_: StaticThemedTooltip(
-                lb, parent, MsgCat.translate("List of exports")
-            ),
+            lambda *_: StaticThemedTooltip(lb, MsgCat.translate("List of exports")),
         )
         lb.bind("<ButtonRelease-1>", lambda *_: status.set("Load a library first!"))
 
@@ -82,9 +83,9 @@ class ExportsFrame(ttk.Labelframe):
         log.debug("%s selected", self.__selected_export.get())
         self.__output.set("")
         if self.__is_native.get():
-            self.__parent.event_generate("<<ToggleFunctionFrame>>", state=1)
+            self.__root.event_generate("<<ToggleFunctionFrame>>", state=1)
         else:
-            self.__parent.event_generate("<<ToggleFunctionFrame>>", state=0)
+            self.__root.event_generate("<<ToggleFunctionFrame>>", state=0)
 
     def cb_validate(self, *_) -> bool:
         """Callback to handle keyboard events on **Exports** combobox.
@@ -102,7 +103,7 @@ class ExportsFrame(ttk.Labelframe):
                 if exp in self.__export_names:
                     self.cb_selected()
                     return True
-                self.__parent.event_generate("<<ToggleFunctionFrame>>", state=1)
+                self.__root.event_generate("<<ToggleFunctionFrame>>", state=1)
                 return False
         return True
 
@@ -134,7 +135,7 @@ class ExportsFrame(ttk.Labelframe):
                 Messagebox.show_warning(
                     f"These export names couldn't be demangled: {failed}",
                     "Demangle Errors",
-                    parent=self.__parent,
+                    parent=self.__root,
                 )
         self.__export_names = names = list(e.demangled_name for e in exports)
         self.set_state()
@@ -145,7 +146,7 @@ class ExportsFrame(ttk.Labelframe):
                 err = "%s not found in export names"
                 log.error(err, selected_export)
                 Messagebox.show_error(
-                    err % selected_export, "Export not found", parent=self.__parent
+                    err % selected_export, "Export not found", parent=self.__root
                 )
                 self.cb.set("")
             else:
@@ -153,7 +154,11 @@ class ExportsFrame(ttk.Labelframe):
                 self.cb_selected()
         self.lb.configure(cursor="hand2")
         self.lb.bind(
-            "<ButtonRelease-1>", lambda *_: ExportsTreeView(self.__exports), add=False
+            "<ButtonRelease-1>",
+            lambda *_: ExportsTreeView(
+                self.__exports, pathlib.Path(self.__lib_path.get()).name
+            ),
+            add=False,
         )
 
     def sort(self, *_):
@@ -170,9 +175,11 @@ class ExportsFrame(ttk.Labelframe):
 
 
 class ExportsTreeView(tk.Toplevel):
-    def __init__(self, exports: list[Export]):
+    def __init__(self, exports: list[Export], lib_name: str):
         log.debug("Initialising")
-        super().__init__(title=MsgCat.translate("Exports"), size=(400, 500))
+        super().__init__(
+            title=f"{MsgCat.translate('Exports')} - {lib_name}", size=(400, 500)
+        )
         set_app_icon(self)
         coldata = [
             "Address",
@@ -199,4 +206,10 @@ class ExportsTreeView(tk.Toplevel):
                 values.insert(0, e.ordinal)
             tv.insert_row(values=values)
         tv.load_table_data()
+        self.bind(
+            "<F11>",
+            lambda *_: self.attributes(
+                "-fullscreen", not self.attributes("-fullscreen")
+            ),
+        )
         log.debug("Initialised")
