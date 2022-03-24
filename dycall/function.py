@@ -33,6 +33,10 @@ class FunctionFrame(ttk.Frame):
         is_outmode: tk.BooleanVar,
         is_running: tk.BooleanVar,
         exc_type: tk.StringVar,
+        get_last_error: tk.IntVar,
+        show_get_last_error: tk.BooleanVar,
+        errno: tk.IntVar,
+        show_errno: tk.BooleanVar,
         rows_to_add: int,
     ):
         super().__init__()
@@ -46,6 +50,10 @@ class FunctionFrame(ttk.Frame):
         self.__is_outmode = is_outmode
         self.__is_running = is_running
         self.__exc_type = exc_type
+        self.__get_last_error = get_last_error
+        self.__show_get_last_error = show_get_last_error
+        self.__errno = errno
+        self.__show_errno = show_errno
         self.__res_q = queue.Queue()  # type: ignore
         self.__exc_q = queue.Queue()  # type: ignore
         self.__args: list[list[str]] = []
@@ -139,7 +147,6 @@ class FunctionFrame(ttk.Frame):
         ag.rowconfigure(0, weight=1)
         ag.columnconfigure(0, weight=1)
 
-        self.event_add("<<ToggleFunctionFrame>>", "None")
         self.bind_all(
             "<<ToggleFunctionFrame>>", lambda event: self.set_state(event.state == 1)
         )
@@ -259,7 +266,7 @@ class FunctionFrame(ttk.Frame):
         except queue.Empty:
             self.after(100, self.process_queue)
         else:
-            self.event_generate("<<OutputSuccess>>", when="tail")
+            self.__parent.event_generate("<<OutputSuccess>>")
             self.__status.set("Operation successful")
             ret = Marshaller.pytype2str(result.ret)
             self.__output.set(ret)
@@ -275,7 +282,7 @@ class FunctionFrame(ttk.Frame):
             # ! Cannot pass an arbitrary string directly even though Tk supports it
             # https://stackoverflow.com/a/21234342
             # https://bugs.python.org/issue3405
-            self.event_generate("<<OutputException>>")
+            self.__parent.event_generate("<<OutputException>>")
             self.__output.set(str(e))
             self.__status.set(status)
             self.activate_copy_button(bootstyle="danger")
@@ -295,6 +302,10 @@ class FunctionFrame(ttk.Frame):
                 ret_type,
                 self.__lib_path.get(),
                 self.__export.get(),
+                self.__get_last_error,
+                self.__show_get_last_error.get(),
+                self.__errno,
+                self.__show_errno.get(),
             )
         except Exception as e:  # pylint: disable=broad-except
             handle_exc(e, "Invalid argument(s)")

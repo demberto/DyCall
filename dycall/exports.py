@@ -5,14 +5,13 @@ import logging
 from typing import TYPE_CHECKING
 
 import ttkbootstrap as tk
-from tktooltip import ToolTip
 from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 from ttkbootstrap.tableview import Tableview
 
 from dycall.types import Export, PEExport
-from dycall.util import get_png, set_app_icon
+from dycall.util import StaticThemedTooltip, get_png, set_app_icon
 
 log = logging.getLogger(__name__)
 
@@ -57,34 +56,23 @@ class ExportsFrame(ttk.Labelframe):
 
         self.__list_png = get_png("list.png")
         self.lb = lb = ttk.Label(self, image=self.__list_png)
-        lb.bind("<Enter>", lambda *_: self.show_lb_tooltip())
+        lb.bind(
+            "<Enter>",
+            lambda *_: StaticThemedTooltip(
+                lb, parent, MsgCat.translate("List of exports")
+            ),
+        )
         lb.bind("<ButtonRelease-1>", lambda *_: status.set("Load a library first!"))
 
         lb.pack(padx=(0, 5), pady=5, side="right")
         cb.pack(fill="x", padx=5, pady=5)
 
-        self.event_add("<<PopulateExports>>", "None")
-        self.event_add("<<ToggleExportsFrame>>", "None")
         self.bind_all("<<PopulateExports>>", lambda *_: self.set_cb_values())
         self.bind_all(
             "<<ToggleExportsFrame>>", lambda event: self.set_state(event.state == 1)
         )
+        self.bind_all("<<SortExports>>", lambda *_: self.sort())
         log.debug("Initialised")
-
-    def show_lb_tooltip(self):
-        if self.__parent.style.theme_use() == "darkly":
-            fg = "#ffffff"
-            bg = "#1c1c1c"
-        else:
-            fg = bg = None
-        ToolTip(
-            widget=self.lb,
-            msg=MsgCat.translate("List of exports"),
-            delay=1,
-            follow=False,
-            fg=fg,
-            bg=bg,
-        )
 
     def cb_selected(self, *_):
         """Callback to handle clicks on **Exports** combobox.
@@ -94,9 +82,9 @@ class ExportsFrame(ttk.Labelframe):
         log.debug("%s selected", self.__selected_export.get())
         self.__output.set("")
         if self.__is_native.get():
-            self.event_generate("<<ToggleFunctionFrame>>", state=1)
+            self.__parent.event_generate("<<ToggleFunctionFrame>>", state=1)
         else:
-            self.event_generate("<<ToggleFunctionFrame>>", state=0)
+            self.__parent.event_generate("<<ToggleFunctionFrame>>", state=0)
 
     def cb_validate(self, *_) -> bool:
         """Callback to handle keyboard events on **Exports** combobox.
@@ -114,7 +102,7 @@ class ExportsFrame(ttk.Labelframe):
                 if exp in self.__export_names:
                     self.cb_selected()
                     return True
-                self.event_generate("<<ToggleFunctionFrame>>", state=1)
+                self.__parent.event_generate("<<ToggleFunctionFrame>>", state=1)
                 return False
         return True
 

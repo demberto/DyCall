@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.4] - 2022-03-21
+## [0.0.4] - 2022-03-24
 
 ### Added
 
@@ -18,6 +18,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Script to recolor icons.
 - Exports treeview to get detailed information.
 - Ability to sort exports (ascending/descending).
+- `errno` and `GetLastError` (Windows only) error codes in status bar.
 
 ### Changed
 

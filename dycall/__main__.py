@@ -13,7 +13,7 @@ from dycall.types import CALL_CONVENTIONS, PARAMETER_TYPES
 from dycall.util import LCIDS
 
 desktop_app.set_process_appid("dycall")
-os = platform.system()
+is_windows = platform.system() == "Windows"
 
 
 # https://stackoverflow.com/a/18700817
@@ -33,7 +33,7 @@ def main():
     ap.add_argument("--log", help="Display logs", action="store_true")
     ap.add_argument("--lib", help="Path/name of library to load on startup")
     ap.add_argument("--exp", help="Name of export to select on library load")
-    if os == "Windows":
+    if is_windows:
         ap.add_argument(
             "--conv", help="Calling convention to use.", choices=CALL_CONVENTIONS
         )
@@ -48,6 +48,15 @@ def main():
     )
     ap.add_argument("--lang", help="The language used by the interface", choices=LCIDS)
     ap.add_argument("--out-mode", help="Use 'out' mode", action="store_true")
+    ap.add_argument(
+        "--hide-last-err",
+        help="Hides GetLastError from the status bar",
+        action="store_true",
+    )
+    if is_windows:
+        ap.add_argument(
+            "--hide-errno", help="Hides errno from the status bar", action="store_true"
+        )
 
     args = ap.parse_args()
     if args.log:
