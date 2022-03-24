@@ -181,6 +181,12 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.event_add("<<ToggleGetLastError>>", "None")
         self.event_add("<<UpdateRecents>>", "None")
         self.bind_all("<<LanguageChanged>>", lambda *_: self.refresh())
+        self.bind(
+            "<F11>",
+            lambda *_: self.attributes(
+                "-fullscreen", not self.attributes("-fullscreen")
+            ),
+        )
 
         # Control variable traces
         self.__show_get_last_error.trace_add(
@@ -249,6 +255,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__is_loaded,
             self.__is_native,
             self.__is_reinitialised,
+            self.__library_path,
             self.__exports,
         )
         self.picker = pf = PickerFrame(

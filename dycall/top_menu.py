@@ -18,7 +18,7 @@ class TopMenu(tk.Menu):
     # pylint: disable-next=too-many-locals
     def __init__(
         self,
-        parent: tk.Window,
+        root: tk.Window,
         outmode: tk.BooleanVar,
         locale: tk.StringVar,
         sort_order: tk.StringVar,
@@ -27,7 +27,7 @@ class TopMenu(tk.Menu):
         recents: collections.deque,
     ):
         super().__init__()
-        self.__parent = parent
+        self.__root = root
         self.__locale = locale
         self.__recents = recents
         self.__lang = tk.StringVar(value=LCID2Lang[locale.get()])
@@ -74,7 +74,7 @@ class TopMenu(tk.Menu):
         self.__theme_png = get_png("theme.png")
         for label in ("System", "Light", "Dark"):
             mot.add_radiobutton(
-                label=label, variable=parent.cur_theme, command=parent.set_theme
+                label=label, variable=root.cur_theme, command=root.set_theme
             )
         mo.add_cascade(
             menu=mot,
@@ -91,7 +91,7 @@ class TopMenu(tk.Menu):
             mo.add_checkbutton(
                 label=MsgCat.translate("Show GetLastError"),
                 variable=show_get_last_error,
-                command=lambda: parent.event_generate(
+                command=lambda: root.event_generate(
                     "<<ToggleGetLastError>>", state=int(show_get_last_error.get())
                 ),
             )
@@ -100,7 +100,7 @@ class TopMenu(tk.Menu):
         mo.add_checkbutton(
             label=MsgCat.translate("Show errno"),
             variable=show_errno,
-            command=lambda: parent.event_generate(
+            command=lambda: root.event_generate(
                 "<<ToggleErrno>>", state=int(show_errno.get())
             ),
         )
@@ -122,7 +122,7 @@ class TopMenu(tk.Menu):
             vse.add_radiobutton(
                 label=MsgCat.translate(sorter.value),
                 variable=sort_order,
-                command=lambda: parent.event_generate("<<SortExports>>"),
+                command=lambda: root.event_generate("<<SortExports>>"),
                 image=img,
                 compound="left",
             )
@@ -138,7 +138,7 @@ class TopMenu(tk.Menu):
         self.add_cascade(menu=mt, label=MsgCat.translate("Tools"), underline=0)
 
         # Tools -> Demangler
-        mt.add_command(label="Demangler", command=lambda *_: DemanglerWindow(parent))
+        mt.add_command(label="Demangler", command=lambda *_: DemanglerWindow(root))
 
         # Help
         self.mh = mh = tk.Menu()
@@ -160,7 +160,7 @@ class TopMenu(tk.Menu):
         lc = self.__locale
         lc.set(Lang2LCID[self.__lang.get()])
         MsgCat.locale(lc.get())
-        self.__parent.event_generate("<<LanguageChanged>>")
+        self.__root.event_generate("<<LanguageChanged>>")
         log.info("Changed locale to '%s'", MsgCat.locale())
 
     def update_recents(self, redraw=False):
@@ -169,8 +169,8 @@ class TopMenu(tk.Menu):
         for path in self.__recents:
             # pylint: disable=cell-var-from-loop
             self.fop.add_command(
-                label=path, command=lambda *_: self.__parent.picker.load(path=path)
+                label=path, command=lambda *_: self.__root.picker.load(path=path)
             )
 
     def open_about(self):
-        AboutWindow(self.__parent)
+        AboutWindow(self.__root)

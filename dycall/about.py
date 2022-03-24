@@ -12,9 +12,8 @@ log = logging.getLogger(__name__)
 
 
 class AboutWindow(tk.Toplevel):
-    def __init__(self, parent):
+    def __init__(self, _: tk.Window):
         log.debug("Initialising")
-        self.parent = parent
 
         super().__init__(
             alpha=0.95,
@@ -83,7 +82,7 @@ class AboutWindow(tk.Toplevel):
         self.x = None
         self.y = None
 
-    def do_move(self, event):
+    def do_move(self, event: tk.tk.Event):
         deltax = event.x - self.x
         deltay = event.y - self.y
         x = self.winfo_x() + deltax

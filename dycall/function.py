@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 class FunctionFrame(ttk.Frame):
     def __init__(
         self,
-        parent: tk.Window,
+        root: tk.Window,
         call_conv: tk.StringVar,
         returns: tk.StringVar,
         lib_path: tk.StringVar,
@@ -40,7 +40,7 @@ class FunctionFrame(ttk.Frame):
         rows_to_add: int,
     ):
         super().__init__()
-        self.__parent = parent
+        self.__root = root
         self.__call_conv = call_conv
         self.__returns = returns
         self.__lib_path = lib_path
@@ -103,12 +103,12 @@ class FunctionFrame(ttk.Frame):
             paste_insert_column_limit=True,
             show_top_left=False,
         )
-        if parent.style.theme_use() == DARK_THEME:
+        if root.style.theme_use() == DARK_THEME:
             at.change_theme("dark blue")
         at.bind(
             "<<ThemeChanged>>",
             lambda _: at.change_theme("dark blue")
-            if parent.style.theme_use() == DARK_THEME
+            if root.style.theme_use() == DARK_THEME
             else at.change_theme(),
         )
         at.extra_bindings("end_edit_cell", self.table_end_edit_cell)
@@ -266,7 +266,7 @@ class FunctionFrame(ttk.Frame):
         except queue.Empty:
             self.after(100, self.process_queue)
         else:
-            self.__parent.event_generate("<<OutputSuccess>>")
+            self.__root.event_generate("<<OutputSuccess>>")
             self.__status.set("Operation successful")
             ret = Marshaller.pytype2str(result.ret)
             self.__output.set(ret)
@@ -282,7 +282,7 @@ class FunctionFrame(ttk.Frame):
             # ! Cannot pass an arbitrary string directly even though Tk supports it
             # https://stackoverflow.com/a/21234342
             # https://bugs.python.org/issue3405
-            self.__parent.event_generate("<<OutputException>>")
+            self.__root.event_generate("<<OutputException>>")
             self.__output.set(str(e))
             self.__status.set(status)
             self.activate_copy_button(bootstyle="danger")
@@ -323,7 +323,7 @@ class FunctionFrame(ttk.Frame):
 
     # * Helpers
     def activate_copy_button(self, state="normal", bootstyle="default"):
-        self.__parent.output.oc.configure(state=state, bootstyle=bootstyle)
+        self.__root.output.oc.configure(state=state, bootstyle=bootstyle)
 
     def bind_run_button(self):
         # pylint: disable=attribute-defined-outside-init

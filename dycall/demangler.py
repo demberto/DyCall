@@ -12,16 +12,16 @@ log = logging.getLogger(__name__)
 
 
 class DemanglerWindow(tk.Toplevel):
-    def __init__(self, parent: tk.Window):
+    def __init__(self, _: tk.Window):
         log.debug("Initialising")
-        self.parent = parent
         self.mangled_name = mangled_name = tk.StringVar()
         self.demangled_name = demangled_name = tk.StringVar()
 
-        super().__init__(title="Demangler")
+        super().__init__(title="Demangler", toolwindow=True)
         self.withdraw()
         set_app_icon(self)
         self.minsize(300, 100)
+        self.resizable(True, False)
         self.geometry("500x100")
 
         self.columnconfigure(0)
@@ -36,7 +36,9 @@ class DemanglerWindow(tk.Toplevel):
             self, text="Demangle", command=self.demangle, state="disabled"
         )
         self.dl = dl = ttk.Label(self, text="Demangled")
-        self.de = de = ttk.Entry(self, textvariable=demangled_name, state="readonly")
+        self.de = de = ttk.Entry(
+            self, textvariable=demangled_name, state="readonly", font="TkFixedFont"
+        )
         self.db = db = CopyButton(self, demangled_name, state="disabled")
 
         # https://www.tutorialspoint.com/how-do-i-get-an-event-callback-when-a-tkinter-entry-widget-is-modified

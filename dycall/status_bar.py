@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 class StatusBarFrame(ttk.Frame):
     def __init__(
         self,
-        parent: tk.Window,
+        _: tk.Window,
         status: tk.StringVar,
         get_last_error: tk.IntVar,
         show_get_last_error: tk.BooleanVar,
@@ -49,7 +49,7 @@ class StatusBarFrame(ttk.Frame):
             gf.bind(
                 "<Enter>",
                 lambda *_: StaticThemedTooltip(
-                    gf, parent, lambda *_: win32api.FormatMessageW(get_last_error.get())
+                    gf, lambda *_: win32api.FormatMessageW(get_last_error.get())
                 ),
             )
             self.bind_all(
@@ -78,7 +78,7 @@ class StatusBarFrame(ttk.Frame):
         self.eb = eb = ttk.Label(ef, textvariable=errno, font="TkFixedFont")
         ef.bind(
             "<Enter>",
-            lambda *_: StaticThemedTooltip(ef, parent, os.strerror(errno.get())),
+            lambda *_: StaticThemedTooltip(ef, os.strerror(errno.get())),
         )
         self.bind_all(
             "<<ToggleErrno>>",
