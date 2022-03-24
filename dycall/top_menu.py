@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import collections
 import logging
+import platform
 
 import ttkbootstrap as tk
 from ttkbootstrap.localization import MessageCatalog as MsgCat
@@ -21,6 +22,8 @@ class TopMenu(tk.Menu):
         outmode: tk.BooleanVar,
         locale: tk.StringVar,
         sort_order: tk.StringVar,
+        show_get_last_error: tk.BooleanVar,
+        show_errno: tk.BooleanVar,
         recents: collections.deque,
     ):
         super().__init__()
@@ -43,7 +46,6 @@ class TopMenu(tk.Menu):
             image=self.__clock_png,
             compound="left",
         )
-        self.event_add("<<UpdateRecents>>", "None")
         self.bind_all("<<UpdateRecents>>", lambda *_: self.update_recents(True))
         self.update_recents()
 
@@ -58,7 +60,7 @@ class TopMenu(tk.Menu):
             mol.add_radiobutton(
                 label=lang,
                 variable=self.__lang,
-                command=self.change_lang,
+                command=lambda: self.change_lang(),
             )
         mo.add_cascade(
             menu=mol,
@@ -82,7 +84,26 @@ class TopMenu(tk.Menu):
         )
 
         # Options -> OUT mode
-        mo.add_checkbutton(label="OUT Mode", variable=outmode)
+        mo.add_checkbutton(label=MsgCat.translate("OUT Mode"), variable=outmode)
+
+        # Options -> Show GetLastError
+        if platform.system() == "Windows":
+            mo.add_checkbutton(
+                label=MsgCat.translate("Show GetLastError"),
+                variable=show_get_last_error,
+                command=lambda: parent.event_generate(
+                    "<<ToggleGetLastError>>", state=int(show_get_last_error.get())
+                ),
+            )
+
+        # Options -> Show errno
+        mo.add_checkbutton(
+            label=MsgCat.translate("Show errno"),
+            variable=show_errno,
+            command=lambda: parent.event_generate(
+                "<<ToggleErrno>>", state=int(show_errno.get())
+            ),
+        )
 
         # View
         self.vt = vt = tk.Menu()
@@ -101,7 +122,7 @@ class TopMenu(tk.Menu):
             vse.add_radiobutton(
                 label=MsgCat.translate(sorter.value),
                 variable=sort_order,
-                command=parent.exports.sort,
+                command=lambda: parent.event_generate("<<SortExports>>"),
                 image=img,
                 compound="left",
             )
@@ -127,18 +148,19 @@ class TopMenu(tk.Menu):
         self.__info_png = get_png("info.png")
         mh.add_command(
             accelerator="F1",
-            command=self.open_about,
+            command=lambda *_: self.open_about(),
             compound="left",
             image=self.__info_png,
             label=MsgCat.translate("About"),
         )
-        self.bind_all("<F1>", self.open_about)
+        self.bind_all("<F1>", lambda *_: self.open_about())
 
-    def change_lang(self, *_):
+    def change_lang(self):
+        log.debug("Changing language")
         lc = self.__locale
         lc.set(Lang2LCID[self.__lang.get()])
         MsgCat.locale(lc.get())
-        self.__parent.refresh()
+        self.__parent.event_generate("<<LanguageChanged>>")
         log.info("Changed locale to '%s'", MsgCat.locale())
 
     def update_recents(self, redraw=False):
@@ -150,5 +172,5 @@ class TopMenu(tk.Menu):
                 label=path, command=lambda *_: self.__parent.picker.load(path=path)
             )
 
-    def open_about(self, *_):
+    def open_about(self):
         AboutWindow(self.__parent)

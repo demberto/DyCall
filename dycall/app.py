@@ -48,6 +48,8 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         rows: int = 0,
         lang: str = "",
         out_mode: bool = False,
+        hide_last_err: bool = False,
+        hide_errno: bool = False,
     ) -> None:
         """DyCall entry point.
 
@@ -66,6 +68,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             lang (str, optional): The language used for displaying UI. Defaults to "".
             out_mode (bool, optional): Whether **OUT Mode** should be enabled.
                 Defaults to False.
+            hide_last_err (bool, optional): Hides and doesn't retrieve GetLastError
+                value shown in status bar. (Windows only)
+            hide_errno (bool, optional): Hides and doesn't retrieve errno value
+                shown in status bar.
         """  # noqa: D403
         log.debug("Initialising")
         self.__rows_to_add: Final = rows
@@ -76,6 +82,8 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         # DyCall is passed with it from the command line.
         self.__dont_save_locale = False
         self.__dont_save_out_mode = False
+        self.__dont_save_show_get_last_error = False
+        self.__dont_save_show_errno = False
 
         super().__init__(iconphoto=None)
         self.withdraw()
@@ -94,6 +102,8 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
                 "out_mode": False,
                 "locale": "en",
                 "recents": [],
+                "show_get_last_error": True,
+                "show_errno": True,
             },
         )
         if lang:
@@ -106,6 +116,16 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__dont_save_out_mode = True
         else:
             out_mode_or_not = config["out_mode"]
+        if hide_last_err:
+            show_get_last_error = False
+            self.__dont_save_show_get_last_error = True
+        else:
+            show_get_last_error = config["show_get_last_error"]
+        if hide_errno:
+            show_errno = False
+            self.__dont_save_show_errno = True
+        else:
+            show_errno = config["show_errno"]
         self.__recents.extend(config["recents"])
 
         # ! BUG: Tkinter doesn't understand Windows paths
@@ -143,6 +163,32 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.__output_text = tk.StringVar()
         self.__status_text = tk.StringVar(value="Choose a library")
         self.__exc_type = tk.StringVar()
+        self.__get_last_error = tk.IntVar()
+        self.__show_get_last_error = tk.BooleanVar(value=show_get_last_error)
+        self.__errno = tk.IntVar()
+        self.__show_errno = tk.BooleanVar(value=show_errno)
+
+        # Events
+        # ! Always use `self.__parent.event_generate`
+        self.event_add("<<LanguageChanged>>", "None")
+        self.event_add("<<OutputSuccess>>", "None")
+        self.event_add("<<OutputException>>", "None")
+        self.event_add("<<PopulateExports>>", "None")
+        self.event_add("<<SortExports>>", "None")
+        self.event_add("<<ToggleErrno>>", "None")
+        self.event_add("<<ToggleExportsFrame>>", "None")
+        self.event_add("<<ToggleFunctionFrame>>", "None")
+        self.event_add("<<ToggleGetLastError>>", "None")
+        self.event_add("<<UpdateRecents>>", "None")
+        self.bind_all("<<LanguageChanged>>", lambda *_: self.refresh())
+
+        # Control variable traces
+        self.__show_get_last_error.trace_add(
+            "write", lambda *_: self.event_generate("<<ToggleGetLastError>>")
+        )
+        self.__show_errno.trace_add(
+            "write", lambda *_: self.event_generate("<<ToggleErrno>>")
+        )
 
         self.geometry(config["geometry"])
         self.deiconify()
@@ -172,6 +218,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.status_bar = sf = StatusBarFrame(
             self,
             self.__status_text,
+            self.__get_last_error,
+            self.__show_get_last_error,
+            self.__errno,
+            self.__show_errno,
         )
         self.function = ff = FunctionFrame(
             self,
@@ -184,6 +234,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__use_out_mode,
             self.__is_running,
             self.__exc_type,
+            self.__get_last_error,
+            self.__show_get_last_error,
+            self.__errno,
+            self.__show_errno,
             self.__rows_to_add,
         )
         self.exports = ef = ExportsFrame(
@@ -210,7 +264,13 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__recents,
         )
         self.top_menu = tm = TopMenu(
-            self, self.__use_out_mode, self.__locale, self.__sort_order, self.__recents
+            self,
+            self.__use_out_mode,
+            self.__locale,
+            self.__sort_order,
+            self.__show_get_last_error,
+            self.__show_errno,
+            self.__recents,
         )
 
         pf.pack(fill="x", padx=5)
@@ -262,6 +322,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             config["out_mode"] = self.__use_out_mode.get()
         if not self.__dont_save_locale:
             config["locale"] = self.__locale.get()
+        if not self.__dont_save_show_get_last_error:
+            config["show_get_last_error"] = self.__show_get_last_error.get()
+        if not self.__dont_save_show_errno:
+            config["show_errno"] = self.__show_errno.get()
         try:
             config.save()
         except IOError as e:

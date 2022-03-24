@@ -5,7 +5,9 @@ import logging
 import pathlib
 import platform
 from ctypes import create_unicode_buffer
-from typing import Union
+from typing import Callable, Union
+
+import tktooltip
 
 try:
     from ctypes import windll  # pylint: disable=ungrouped-imports
@@ -51,6 +53,11 @@ def demangle(exp: str) -> str:
     return exp
 
 
+# * Constants
+
+LIGHT_THEME: Final = "yeti"
+DARK_THEME: Final = "darkly"
+
 # * Custom widgets
 
 
@@ -64,6 +71,28 @@ class CopyButton(ttk.Button):  # pylint: disable=too-many-ancestors
     def copy(self, *_):
         self.clipboard_clear()
         self.clipboard_append(self.__copy_var.get())
+
+
+class StaticThemedTooltip(tktooltip.ToolTip):
+    def __init__(
+        self,
+        widget: tk.tk.Widget,
+        parent: tk.Window,
+        msg: Union[str, Callable] = None,
+        delay: float = 1,
+    ):
+        fg = bg = None
+        if parent.style.theme_use() == DARK_THEME:
+            fg = "#ffffff"
+            bg = "#1c1c1c"
+        super().__init__(
+            widget=widget,
+            msg=msg,
+            delay=delay,
+            follow=False,
+            fg=fg,
+            bg=bg,
+        )
 
 
 # * Translations
@@ -107,9 +136,3 @@ def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]) -> None:
         wnd.iconbitmap(ico)
     else:
         wnd.iconphoto(False, get_png("dycall.png"))
-
-
-# * Constants
-
-LIGHT_THEME: Final = "yeti"
-DARK_THEME: Final = "darkly"

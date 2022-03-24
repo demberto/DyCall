@@ -5,6 +5,7 @@ darkdetect==0.5.1
 desktop-app==0.2.10
 EasySettings==4.0.1
 lief==0.11.5
+pywin32==303
 tksheet==5.2.8
 ttkbootstrap==1.7.1
 

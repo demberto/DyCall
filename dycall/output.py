@@ -15,8 +15,6 @@ class OutputFrame(ttk.Labelframe):
         log.debug("Initialising")
         title = MsgCat.translate("Output")
         super().__init__(text=title)
-        self.event_add("<<OutputSuccess>>", "None")
-        self.event_add("<<OutputException>>", "None")
         self.bind_all("<<OutputSuccess>>", lambda *_: self.configure(text=title))
         self.bind_all(
             "<<OutputException>>", lambda _: self.configure(text=exc_type.get())
