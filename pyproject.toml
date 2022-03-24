@@ -10,7 +10,7 @@ exclude = "venv"
 ignore_missing_imports = true
 
 [tool.pylint.MASTER]
-jobs=0  # Faster
+jobs = 0 # Faster
 
 [tool.pylint.DESIGN]
 max-statements = 60
@@ -28,7 +28,9 @@ disable = [
   "too-many-arguments",
   "too-many-boolean-expressions",
   "too-many-branches",
-  "unspecified-encoding"
+  "too-many-locals",
+  "too-many-statements",
+  "unspecified-encoding",
 ]
 
 [tool.pylint.LOGGING]
@@ -40,6 +42,7 @@ ignore-imports = "yes"
 
 [tool.pylint.TYPECHECK]
 generated-members = ["lief.*"]
+extension-pkg-allow-list = "win32api"
 
 [tool.pytest.ini_options]
 minversion = 6.0

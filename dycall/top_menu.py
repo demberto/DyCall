@@ -60,7 +60,7 @@ class TopMenu(tk.Menu):
             mol.add_radiobutton(
                 label=lang,
                 variable=self.__lang,
-                command=lambda: self.change_lang(),
+                command=self.change_lang,
             )
         mo.add_cascade(
             menu=mol,
