@@ -12,10 +12,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Update check button in **About**.
 - Installed version of DyCall and its dependencies is displayed in **About**.
 - `publish` action automatically creates a release with changelogs from here.
+- Auto add/remove rows in **Exports** treeview when resized.
 
 ### Changed
 
 - **About** window will not get created if its open already (singleton).
+- App icon setter logic, handled for all windows in `App` itself.
+- `util.py`: `get_png` renamed to `get_img`.
+
+### Removed
+
+- `util.py`: `set_app_icon` method.
 
 ## [0.0.4] - 2022-03-24
 

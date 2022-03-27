@@ -15,8 +15,9 @@ except ImportError:
     pass
 
 try:
-    from typing import Final  # type: ignore    # pylint: disable-next=ungrouped-imports
+    from typing import Final  # type: ignore
 except ImportError:
+    # pylint: disable=ungrouped-imports
     from typing_extensions import Final  # type: ignore
 
 import ttkbootstrap as tk
@@ -111,7 +112,11 @@ Lang2LCID: Final = {v: k for k, v in LCID2Lang.items()}
 dirpath = pathlib.Path(__file__).parent.resolve()
 
 
-def get_png(name: str, **kwargs) -> tk.PhotoImage:
+def get_img_path(name: str) -> str:
+    return str(dirpath / "img" / name)
+
+
+def get_img(name: str, **kwargs) -> tk.PhotoImage:
     """Finds an image `name` in *img/* and returns a PhotoImage object.
 
     Additional keyword arguments are passed to `tk.PhotoImage`'s constructor.
@@ -120,19 +125,5 @@ def get_png(name: str, **kwargs) -> tk.PhotoImage:
         name (str): The name of the image file as saved in *img/*, e.g. `clock.png`.
     """
     log.debug("Getting image %s", name)
-    with open(dirpath / "img" / name, "rb") as png:
-        return tk.PhotoImage(data=png.read(), **kwargs)
-
-
-def set_app_icon(wnd: Union[tk.Window, tk.Toplevel]) -> None:
-    """Used by `App` and `DemanglerWindow` to set the window icon.
-
-    Args:
-        wnd: (Union[tk.Window, tk.Toplevel]): The window whose icon is to be set.
-    """
-    log.debug("Setting app icon")
-    if platform.system() == "Windows":
-        ico = dirpath / "img/dycall.ico"
-        wnd.iconbitmap(ico)
-    else:
-        wnd.iconphoto(False, get_png("dycall.png"))
+    with open(dirpath / "img" / name, "rb") as img:
+        return tk.PhotoImage(data=img.read(), **kwargs)

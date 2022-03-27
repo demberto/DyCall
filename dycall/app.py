@@ -30,7 +30,7 @@ from dycall.picker import PickerFrame
 from dycall.status_bar import StatusBarFrame
 from dycall.top_menu import TopMenu
 from dycall.types import CallConvention, Export, SortOrder
-from dycall.util import DARK_THEME, LIGHT_THEME, set_app_icon
+from dycall.util import DARK_THEME, LIGHT_THEME, get_img_path
 
 log = logging.getLogger(__name__)
 
@@ -85,7 +85,13 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.__dont_save_show_get_last_error = False
         self.__dont_save_show_errno = False
 
-        super().__init__(iconphoto=None)
+        log.debug("Setting app icon")
+        if platform.system() != "Windows":
+            super().__init__(iconphoto=get_img_path("dycall.png"))
+        else:
+            super().__init__(iconphoto=None)
+            ico = dirpath / "img/dycall.ico"
+            self.iconbitmap(ico, ico)
         self.withdraw()
 
         log.debug("Loading config")
@@ -140,7 +146,6 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.arch = platform.architecture()[0]
         self.title(self.__default_title)
         self.minsize(width=450, height=600)
-        set_app_icon(self)
         self.cur_theme = tk.StringVar(value=config["theme"])
 
         # Set by picker
@@ -198,9 +203,9 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         )
 
         self.geometry(config["geometry"])
-        self.deiconify()
         self.set_theme()
         self.init_widgets()
+        self.deiconify()
         log.debug("App initialised")
 
     @property

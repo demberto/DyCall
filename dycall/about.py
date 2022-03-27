@@ -16,7 +16,7 @@ from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
-from dycall.util import get_png
+from dycall.util import get_img
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class AboutWindow(tk.Toplevel):
         ttk.Label(self, text="(c) demberto 2022").pack(pady=5)
 
         # https://stackoverflow.com/a/15216402
-        self.__github = get_png("github.png")
+        self.__github = get_img("github.png")
         gb = ttk.Label(self, image=self.__github, cursor="hand2")
 
         # https://stackoverflow.com/a/68306781
@@ -113,6 +113,7 @@ class AboutWindow(tk.Toplevel):
         self.place_window_center()
         self.deiconify()
         self.focus_set()
+        self.grab_set()
         log.debug("Initalised")
 
     def destroy(self) -> None:
