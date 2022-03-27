@@ -24,11 +24,13 @@ class TopMenu(tk.Menu):
         sort_order: tk.StringVar,
         show_get_last_error: tk.BooleanVar,
         show_errno: tk.BooleanVar,
+        about_opened: tk.BooleanVar,
         recents: collections.deque,
     ):
         super().__init__()
         self.__root = root
         self.__locale = locale
+        self.__about_opened = about_opened
         self.__recents = recents
         self.__lang = tk.StringVar(value=LCID2Lang[locale.get()])
 
@@ -173,4 +175,6 @@ class TopMenu(tk.Menu):
             )
 
     def open_about(self):
-        AboutWindow(self.__root)
+        if not self.__about_opened.get():
+            self.__about_opened.set(True)
+            AboutWindow(self.__root, self.__about_opened)
