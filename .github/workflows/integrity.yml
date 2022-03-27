@@ -1,4 +1,4 @@
-name: Verify and maintain integrity
+name: integrity
 
 on: [push, pull_request]
 
