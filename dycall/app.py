@@ -167,6 +167,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         self.__show_get_last_error = tk.BooleanVar(value=show_get_last_error)
         self.__errno = tk.IntVar()
         self.__show_errno = tk.BooleanVar(value=show_errno)
+        self.__about_opened = tk.BooleanVar(value=False)
 
         # Events
         # ! Always use `self.__parent.event_generate`
@@ -277,6 +278,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__sort_order,
             self.__show_get_last_error,
             self.__show_errno,
+            self.__about_opened,
             self.__recents,
         )
 
