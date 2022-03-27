@@ -130,6 +130,7 @@ Check the [Adding Translations][adding-translations] section in the contributor'
 - [ ] Automatic call convention detection
 - [ ] Function prototype detection from header files or similar
 - [ ] Use a child process to execute, this ensures more stability
+- [ ] Documentation
 
 ## 🤝 Contributing
 
@@ -160,9 +161,8 @@ Additional acknowledgements have been made in the code.
 
 <!-- MARKDOWN LINKS AND IMAGES -->
 
-[integrity-status]:
-  https://img.shields.io/github/workflow/status/demberto/DyCall/Verify%20and%20maintain%20integrity?label=integrity
-[publish-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/Publish
+[integrity-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/integrity
+[publish-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/publish
 [license-shield]: https://img.shields.io/pypi/l/dycall
 [license-url]: https://github.com/demberto/DyCall/blob/master/LICENSE
 [pyversions-shield]: https://img.shields.io/pypi/pyversions/dycall
@@ -173,5 +173,4 @@ Additional acknowledgements have been made in the code.
 [code-style-url]: https://github.com/psf/black
 [code-of-conduct]: https://github.com/demberto/DyCall/blob/master/CODE_OF_CONDUCT.md
 [contributor-guide]: https://github.com/demberto/DyCall/blob/master/CONTRIBUTING.md
-[adding-translations]:
-  https://github.com/demberto/DyCall/blob/master/CONTRIBUTING.md#adding-translations
+[adding-translations]: https://github.com/demberto/DyCall/blob/master/CONTRIBUTING.md#adding-translations
