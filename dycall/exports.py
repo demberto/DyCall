@@ -12,7 +12,7 @@ from ttkbootstrap.localization import MessageCatalog as MsgCat
 from ttkbootstrap.tableview import Tableview
 
 from dycall.types import Export, PEExport
-from dycall.util import StaticThemedTooltip, get_png, set_app_icon
+from dycall.util import StaticThemedTooltip, get_img
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class ExportsFrame(ttk.Labelframe):
         # ! cb.bind("<Return>", lambda *_: self.cb_validate)  # Doesn't work
         cb.bind("<<ComboboxSelected>>", self.cb_selected)
 
-        self.__list_png = get_png("list.png")
+        self.__list_png = get_img("list.png")
         self.lb = lb = ttk.Label(self, image=self.__list_png)
         lb.bind(
             "<Enter>",
@@ -180,7 +180,8 @@ class ExportsTreeView(tk.Toplevel):
         super().__init__(
             title=f"{MsgCat.translate('Exports')} - {lib_name}", size=(400, 500)
         )
-        set_app_icon(self)
+        self.__old_height = 0
+        self.withdraw()
         coldata = [
             "Address",
             "Name",
@@ -189,7 +190,7 @@ class ExportsTreeView(tk.Toplevel):
         is_pe = isinstance(exports[0], PEExport)
         if is_pe:
             coldata.insert(0, "Ordinal")
-        tv = Tableview(
+        self.__tv = tv = Tableview(
             self,
             searchable=True,
             autofit=True,
@@ -212,4 +213,13 @@ class ExportsTreeView(tk.Toplevel):
                 "-fullscreen", not self.attributes("-fullscreen")
             ),
         )
+        self.bind("<Configure>", self.resize)
+        self.deiconify()
+        self.focus_set()
         log.debug("Initialised")
+
+    def resize(self, event: tk.tk.Event):
+        new_height = event.height
+        if event.widget.widgetName == "toplevel" and new_height != self.__old_height:
+            self.__tv.pagesize = int(new_height) / 20
+            self.__old_height = new_height

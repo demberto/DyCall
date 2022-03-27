@@ -9,7 +9,7 @@ from ttkbootstrap.localization import MessageCatalog as MsgCat
 from dycall.about import AboutWindow
 from dycall.demangler import DemanglerWindow
 from dycall.types import SortOrder
-from dycall.util import Lang2LCID, LCID2Lang, get_png
+from dycall.util import Lang2LCID, LCID2Lang, get_img
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class TopMenu(tk.Menu):
 
         # File -> Open Recent
         self.fop = fop = tk.Menu()
-        self.__clock_png = get_png("clock.png")
+        self.__clock_png = get_img("clock.png")
         fo.add_cascade(
             menu=fop,
             label="Open Recent",
@@ -57,7 +57,7 @@ class TopMenu(tk.Menu):
 
         # Options -> Language
         self.mol = mol = tk.Menu(mo)
-        self.__translate_png = get_png("translate.png")
+        self.__translate_png = get_img("translate.png")
         for lang in LCID2Lang.values():
             mol.add_radiobutton(
                 label=lang,
@@ -73,7 +73,7 @@ class TopMenu(tk.Menu):
 
         # Options -> Theme
         self.mot = mot = tk.Menu(mo)
-        self.__theme_png = get_png("theme.png")
+        self.__theme_png = get_img("theme.png")
         for label in ("System", "Light", "Dark"):
             mot.add_radiobutton(
                 label=label, variable=root.cur_theme, command=root.set_theme
@@ -113,9 +113,9 @@ class TopMenu(tk.Menu):
 
         # View -> Sort Exports By
         self.vse = vse = tk.Menu()
-        self.__sort_png = get_png("sort.png")
-        self.__sort_name_asc_png = get_png("sort_name_asc.png")
-        self.__sort_name_desc_png = get_png("sort_name_desc.png")
+        self.__sort_png = get_img("sort.png")
+        self.__sort_name_asc_png = get_img("sort_name_asc.png")
+        self.__sort_name_desc_png = get_img("sort_name_desc.png")
         sorter_imgs = (
             self.__sort_name_asc_png,
             self.__sort_name_desc_png,
@@ -147,7 +147,7 @@ class TopMenu(tk.Menu):
         self.add_cascade(menu=mh, label=MsgCat.translate("Help"), underline=0)
 
         # Help -> About
-        self.__info_png = get_png("info.png")
+        self.__info_png = get_img("info.png")
         mh.add_command(
             accelerator="F1",
             command=lambda *_: self.open_about(),

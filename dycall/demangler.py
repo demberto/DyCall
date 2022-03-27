@@ -6,7 +6,7 @@ from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
-from dycall.util import CopyButton, DemangleError, demangle, set_app_icon
+from dycall.util import CopyButton, DemangleError, demangle
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +19,6 @@ class DemanglerWindow(tk.Toplevel):
 
         super().__init__(title="Demangler", toolwindow=True)
         self.withdraw()
-        set_app_icon(self)
         self.minsize(300, 100)
         self.resizable(True, False)
         self.geometry("500x100")
@@ -51,7 +50,9 @@ class DemanglerWindow(tk.Toplevel):
         de.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="ew")
         db.grid(row=1, column=2, padx=5, pady=(0, 10), sticky="w")
 
+        self.place_window_center()
         self.deiconify()
+        self.focus_set()
         log.debug("Initialised")
 
     def set_state(self, *_):
