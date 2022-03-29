@@ -11,4 +11,3 @@ pytest
 setup-cfg-fmt
 tox
 types-requests
-yesqa

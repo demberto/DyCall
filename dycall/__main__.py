@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
+"""
+dycall.__main__
+~~~~~~~~~~~~~~~
+
+Entry point. Command line arguments are parsed and passed over to `App`.
+"""
 
 import argparse
 import logging
@@ -18,6 +24,7 @@ is_windows = platform.system() == "Windows"
 
 # https://stackoverflow.com/a/18700817
 def positive_int(s: str) -> int:
+    """Positive integer validator for `argparse.ArgumentParser`."""
     i = int(s)
     if i < 0:
         raise argparse.ArgumentTypeError("A positive number is required")
@@ -25,14 +32,15 @@ def positive_int(s: str) -> int:
 
 
 def main():
+    """Arguments are parsed here and passed as keyword arguments."""
     # * Don't use default values for string arguments
     ap = argparse.ArgumentParser(
         prog="DyCall",
         description="Run exported symbols from native libraries",
     )
     ap.add_argument("--log", help="Display logs", action="store_true")
-    ap.add_argument("--lib", help="Path/name of library to load on startup")
-    ap.add_argument("--exp", help="Name of export to select on library load")
+    ap.add_argument("--lib", help="Path/name of library to load on startup.")
+    ap.add_argument("--exp", help="Name of export to select from lib.")
     if is_windows:
         ap.add_argument(
             "--conv", help="Calling convention to use.", choices=CALL_CONVENTIONS
@@ -49,7 +57,7 @@ def main():
     ap.add_argument("--lang", help="The language used by the interface", choices=LCIDS)
     ap.add_argument("--out-mode", help="Use 'out' mode", action="store_true")
     ap.add_argument(
-        "--hide-last-err",
+        "--hide-gle",
         help="Hides GetLastError from the status bar",
         action="store_true",
     )

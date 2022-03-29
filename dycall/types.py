@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.types
+~~~~~~~~~~~~
+
+Most analogous to the "Model" part of the MVC design pattern.
+"""
+
 from __future__ import annotations
 
 import abc
@@ -24,6 +32,12 @@ from ctypes import (
     c_wchar_p,
 )
 from typing import Any, Union
+
+try:
+    from typing import Final  # type: ignore
+except ImportError:
+    # pylint: disable=ungrouped-imports
+    from typing_extensions import Final  # type: ignore
 
 from dycall.util import DemangleError, demangle
 
@@ -124,13 +138,19 @@ class ParameterType(enum.Enum):
 
     @property
     def ctype(self):
+        """Returns equivalent ctypes data type."""
         return _StrToCtype[self.value]
 
 
-PARAMETER_TYPES = tuple(t.value for t in ParameterType)
+PARAMETER_TYPES: Final = tuple(t.value for t in ParameterType)
 
 
 class CallConvention(enum.Enum):
+    """Calling convention to use when calling a function.
+
+    Since, Linux libs don't use stdcall, this is required only for Windows.
+    """
+
     Cdecl = "cdecl"
     """Commonly used on all platforms. Most probably you will need this."""
 
@@ -138,7 +158,7 @@ class CallConvention(enum.Enum):
     """More popular on Windows, all system libraries on Windows use this."""
 
 
-CALL_CONVENTIONS = tuple(t.value for t in CallConvention)
+CALL_CONVENTIONS: Final = tuple(t.value for t in CallConvention)
 
 
 class Marshaller:
@@ -146,6 +166,7 @@ class Marshaller:
 
     @staticmethod
     def ctype2str(p: _CType) -> str:
+        """Ctypes -> Tkinter."""
         v = "NULL"
         if p is not None:
             val = p.value
@@ -161,6 +182,7 @@ class Marshaller:
 
     @staticmethod
     def pytype2str(p: Any) -> str:
+        """Python -> Tkinter."""
         if p:
             if isinstance(p, bytes):
                 return p.decode("utf-8", errors="replace")
@@ -170,7 +192,8 @@ class Marshaller:
     @typing.no_type_check
     @staticmethod
     def str2ctype(t: _CType, val: str) -> _CType:
-        # pylint: disable-next=no-else-return
+        """Tkinter -> ctypes."""
+        # pylint: disable=no-else-return
         if t in (
             c_int8,
             c_int16,
@@ -200,6 +223,7 @@ class RunResult:
 
     @property
     def values(self) -> list[Any]:
+        """Ctypes -> Tkinter representation for all arguments."""
         values = []
         for arg in self.args:
             v = Marshaller.ctype2str(arg)
@@ -208,6 +232,8 @@ class RunResult:
 
 
 class SortOrder(enum.Enum):
+    """Export name sort order in **Exports** combobox."""
+
     NameAscending = "Name (ascending)"
     NameDescending = "Name (descending)"
 
@@ -222,12 +248,18 @@ class Export(abc.ABC):
     """
 
     address: int
+    """See `lief.Function.address`."""
+
     name: str
+    """See `lief.Function.name`."""
 
 
 @dataclasses.dataclass
 class PEExport(Export):
+    """Represents a Windows library export."""
+
     ordinal: int
+    """See `lief.PE.ExportEntry.ordinal`."""
 
     def __post_init__(self):
         """Calculate a demangled/displayed name."""
@@ -243,4 +275,7 @@ class PEExport(Export):
 
 @dataclasses.dataclass
 class ELFExport(Export):
+    """Represents a Linux or MacOS library export."""
+
     demangled_name: str
+    """See `lief.ELF.Symbol.demangled_name`."""

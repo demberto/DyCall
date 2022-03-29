@@ -1,10 +1,17 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.picker
+~~~~~~~~~~~~~
+
+Contain `PickerFrame`.
+"""
+
 from __future__ import annotations
 
 import collections
 import ctypes.util
 import logging
-import pathlib
 import platform
 from tkinter import filedialog
 
@@ -20,6 +27,16 @@ log = logging.getLogger(__name__)
 
 
 class PickerFrame(ttk.Labelframe):
+    """Implements the library picker.
+
+    Use command line option `--lib` to auto-load a library on app launch.
+
+    Features:
+    - Validation
+    - Supports short names (thanks to system search order)
+    - Remembers recently opened files.
+    """
+
     def __init__(
         self,
         root: tk.Window,
@@ -29,7 +46,6 @@ class PickerFrame(ttk.Labelframe):
         status: tk.StringVar,
         is_loaded: tk.BooleanVar,
         is_native: tk.BooleanVar,
-        default_title: str,
         exports: list[Export],
         recents: collections.deque,
     ):
@@ -41,12 +57,11 @@ class PickerFrame(ttk.Labelframe):
         self.__selected_export = selected_export
         self.__output = output
         self.__status = status
-        self.__default_title = default_title
         self.__is_loaded = is_loaded
         self.__is_native = is_native
         self.__exports = exports
         self.__recents = recents
-        self.os_name = platform.system()
+        self.__os_name = platform.system()
 
         # Library path entry
         self.le = le = ttk.Entry(
@@ -55,7 +70,7 @@ class PickerFrame(ttk.Labelframe):
             validate="focusout",
             validatecommand=(self.register(self.validate), "%P"),
         )
-        le.bind("<Return>", self.on_enter)
+        le.bind("<Return>", self.on_return_key)
         le.pack(fill="x", expand=True, side="left", padx=5, pady=5)
 
         # Button to invoke file picker
@@ -69,13 +84,19 @@ class PickerFrame(ttk.Labelframe):
 
         log.debug("Initialised")
 
-    def on_enter(self, *_) -> None:
+    def on_return_key(self, *_) -> None:
+        """Callback for handling Enter key pressed in **Library** entry."""
         # Without this, a false Export not found occurs
         self.__selected_export.set("")
         self.load()
         self.le.icursor("end")
 
     def validate(self, s: str) -> bool:
+        """Picker entry validation logic.
+
+        Toggles the state of **Exports** and **Function** frame depending upon
+        the result of the validation.
+        """
         if s:
             ret = ctypes.util.find_library(s)
             if ret:
@@ -92,6 +113,7 @@ class PickerFrame(ttk.Labelframe):
         return True
 
     def browse(self) -> None:
+        """Opens a file picker to select a library."""
         file = filedialog.askopenfilename(
             title="Select a binary to load",
             filetypes=[
@@ -107,6 +129,21 @@ class PickerFrame(ttk.Labelframe):
             self.load(True, file)
 
     def load(self, dont_search: bool = False, path: str = None) -> None:
+        """Implements the library load logic.
+
+        1. Finds absolute path if `dont_search` is `False`.
+        2. Parses the library with LIEF.
+        3. Checks if it is a native library.
+        4. Triggers the population of **Exports** combobox.
+        5. Updates recents.
+
+        Args:
+            dont_search (bool, optional): Don't use the system search
+                order for finding the library. Defaults to False.
+            path (str, optional): Used instead of `self.__lib_path` as the library
+                path. Defaults to None. If None, then `self.__lib_path` is used.
+        """
+
         def failure():
             self.__is_loaded.set(False)
             self.__status.set("Load failed")
@@ -129,16 +166,13 @@ class PickerFrame(ttk.Labelframe):
         if not isinstance(lib, lief.Binary):
             failure()
             return
-        self.__root.lib = lib
         self.__is_loaded.set(True)
         self.__status.set("Loaded successfully")
-        lib_name = str(pathlib.Path(path).name)
-        self.__root.title(f"{self.__default_title} - {lib_name}")
+        self.__root.event_generate("<<SetWindowTitle>>")
 
-        os = self.os_name
+        os = self.__os_name
         fmt = lib.format
         fmts = lief.EXE_FORMATS
-
         if (
             (os == "Windows" and fmt == fmts.PE)
             or (os == "Darwin" and fmt == fmts.MACHO)

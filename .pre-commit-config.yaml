@@ -10,7 +10,6 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
       - id: requirements-txt-fixer
-      - id: fix-encoding-pragma
       - id: check-vcs-permalinks
       # TODO file-contents-sorter for translations
   - repo: https://github.com/psf/black
@@ -22,12 +21,6 @@ repos:
     hooks:
       - id: isort
         args: ["--profile", "black", "--filter-files"]
-  - repo: https://github.com/asottile/yesqa
-    rev: v1.3.0
-    hooks:
-      - id: yesqa
-        additional_dependencies:
-          [flake8-docstrings==1.6.0, flake8-typing-imports==1.12.0]
   - repo: https://github.com/pycqa/flake8
     rev: 4.0.1
     hooks:

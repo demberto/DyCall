@@ -1,10 +1,14 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""Tests DyCall UI and its behaviors."""
+
 from __future__ import annotations
 
 import json
 
 
 def test_default_config(create_app, tmp_path):
+    """Tests the configuration file saved on first exit."""
     create_app.destroy()
     settings_file = tmp_path / "settings.json"
     assert settings_file.is_file()

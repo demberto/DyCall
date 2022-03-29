@@ -1,18 +1,24 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.util
+~~~~~~~~~~~
+
+Contains:
+- Demangling: Logic used by `dycall.types.PEExport`, `dycall.types.ELFExport`
+  and `dycall.demangler.DemanglerWindow`.
+- Constants: TtkBootstrap light and dark theme names.
+- Custom widgets: A tooltip and a copy button.
+- Helpers: Image path and PhotoImage object getters.
+"""
+
 from __future__ import annotations
 
+import ctypes
 import logging
 import pathlib
 import platform
-from ctypes import create_unicode_buffer
 from typing import Callable, Union
-
-import tktooltip
-
-try:
-    from ctypes import windll  # pylint: disable=ungrouped-imports
-except ImportError:
-    pass
 
 try:
     from typing import Final  # type: ignore
@@ -20,6 +26,12 @@ except ImportError:
     # pylint: disable=ungrouped-imports
     from typing_extensions import Final  # type: ignore
 
+try:
+    import cxxfilt
+except ImportError:
+    pass
+
+import tktooltip
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
 
@@ -32,7 +44,7 @@ BUFSIZE: Final = 1000  # That should probably be enough
 
 
 class DemangleError(Exception):
-    """Raised when demangling fails due to an invalid name or an internal error."""
+    """Raised when demangling fails due to any reason."""
 
 
 def demangle(exp: str) -> str:
@@ -43,15 +55,20 @@ def demangle(exp: str) -> str:
     """  # noqa: E501
     if os == "Windows":
         if exp.startswith("?"):
-            buf = create_unicode_buffer(BUFSIZE)
+            buf = ctypes.create_unicode_buffer(BUFSIZE)
             try:
-                hr = windll.dbghelp.UnDecorateSymbolNameW(exp, buf, BUFSIZE, 0)
+                dbghelp = ctypes.windll["dbghelp"]
+                hr = dbghelp.UnDecorateSymbolNameW(exp, buf, BUFSIZE, 0)
             except OSError as e:
                 raise DemangleError from e
             if hr:
                 return buf.value
             raise DemangleError
-    return exp
+        return exp
+    try:
+        return cxxfilt.demangle(exp)
+    except cxxfilt.Error as e:
+        raise DemangleError from e
 
 
 # * Constants
@@ -62,20 +79,33 @@ DARK_THEME: Final = "darkly"
 # * Custom widgets
 
 
-class CopyButton(ttk.Button):  # pylint: disable=too-many-ancestors
+class CopyButton(ttk.Button):
+    """Button which copies text from a `tk.StringVar` to system clipboard."""
+
     def __init__(self, parent: tk.Window, copy_from: tk.StringVar, *args, **kwargs):
         self.__copy_var = copy_from
         super().__init__(
-            parent, text="⧉", command=self.copy, style="info-outline", *args, **kwargs
+            parent,
+            text="⧉",
+            command=lambda *_: self.copy(),
+            style="info-outline",
+            *args,
+            **kwargs,
         )
         self.bind("<Enter>", lambda *_: StaticThemedTooltip(self, "Copy", delay=0.5))
 
-    def copy(self, *_):
+    def copy(self):
+        """Clears the clipboard and appends new text.
+
+        Tkinter's clipboard system works a bit differently.
+        """
         self.clipboard_clear()
         self.clipboard_append(self.__copy_var.get())
 
 
 class StaticThemedTooltip(tktooltip.ToolTip):
+    """A non-tracking theme-aware tooltip with a configurable delay."""
+
     def __init__(
         self,
         widget: tk.tk.Widget,
@@ -108,22 +138,54 @@ Lang2LCID: Final = {v: k for k, v in LCID2Lang.items()}
 
 # * Helpers
 
-# https://stackoverflow.com/a/3430395
-dirpath = pathlib.Path(__file__).parent.resolve()
+
+class _ImageFinder:
+    """DyCall image finder.
+
+    Images are searched in the `img/` relative to the folder this file is in.
+    I didn't quite like what `pkgutil` or `importlib.resources` had to offer.
+    Images should never be loaded/searched without using this class or the
+    helper methods `get_img` and `get_img_path`.
+    """
+
+    # https://stackoverflow.com/a/3430395
+    _dirpath = pathlib.Path(__file__).parent.resolve()
+    _imgpath: Final = _dirpath / "img"
+
+    def __init__(self, name: str, **kwargs) -> None:
+        self.__name = name
+        self.__photo_image_kw = kwargs
+
+    @property
+    def path(self) -> str:
+        """Returns the absolute path of the image.
+
+        Use this only when `photo_image` is not an option.
+        """
+        log.debug("Getting path of image %s", self.__name)
+        return str(self._imgpath / self.__name)
+
+    @property
+    def photo_image(self) -> tk.PhotoImage:
+        """Returns the image as a `tk.PhotoImage` object.
+
+        Use this whenever possible.
+        """
+        log.debug("Getting image object for %s", self.__name)
+        with open(self._imgpath / self.__name, "rb") as img:
+            return tk.PhotoImage(data=img.read(), **self.__photo_image_kw)
 
 
 def get_img_path(name: str) -> str:
-    return str(dirpath / "img" / name)
+    """Returns the absolute path of an image."""
+    return _ImageFinder(name).path
 
 
 def get_img(name: str, **kwargs) -> tk.PhotoImage:
-    """Finds an image `name` in *img/* and returns a PhotoImage object.
-
-    Additional keyword arguments are passed to `tk.PhotoImage`'s constructor.
+    """Returns an image as a `tk.PhotoImage` object.
 
     Args:
-        name (str): The name of the image file as saved in *img/*, e.g. `clock.png`.
+        name (str): File name of image.
+        kwargs: Additional arguments passed directly to `tk.PhotoImage`.
     """
-    log.debug("Getting image %s", name)
-    with open(dirpath / "img" / name, "rb") as img:
-        return tk.PhotoImage(data=img.read(), **kwargs)
+    return _ImageFinder(name, **kwargs).photo_image

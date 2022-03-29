@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.status_bar
+~~~~~~~~~~~~~~~~~
+
+Contains `StatusBarFrame`.
+"""
+
 import logging
 import os
 import platform
@@ -17,6 +25,18 @@ log = logging.getLogger(__name__)
 
 
 class StatusBarFrame(ttk.Frame):
+    """Implements a typical desktop application status bar.
+
+    Contains:
+        - A useful message which changes according to the current state of the
+          application and user events (on the left).
+        - Errno and GetLastError (Window only) on the right.
+
+    Command line arguments:
+        - `--hide-errno` to hide **errno**.
+        - `--hide-gle` to hide **GetLastError** (Windows only).
+    """
+
     def __init__(
         self,
         _: tk.Window,
@@ -95,7 +115,7 @@ class StatusBarFrame(ttk.Frame):
         log.debug("Initialised")
 
     def adjust_separator(self):
-        """Reconfigures separator when `self.__ef` or `self.__gf` gets hidden.
+        """Reconfigures separator when **errno** or **GetLastError** is hidden.
 
         Only used on Windows.
         """

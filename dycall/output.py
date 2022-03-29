@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.output
+~~~~~~~~~~~~~
+
+Contains `OutputFrame`.
+"""
+
 import logging
 
 import ttkbootstrap as tk
@@ -11,6 +19,11 @@ log = logging.getLogger(__name__)
 
 
 class OutputFrame(ttk.Labelframe):
+    """Shows the value returned/exception caused by calling the exported function.
+
+    Contains a readonly `Entry` to display text and a copy button alongside.
+    """
+
     def __init__(self, _: tk.Window, output: tk.StringVar, exc_type: tk.StringVar):
         log.debug("Initialising")
         title = MsgCat.translate("Output")

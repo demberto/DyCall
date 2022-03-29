@@ -24,4 +24,3 @@ pytest==7.0.1
 setup-cfg-fmt==1.20.0
 tox==3.24.5
 types-requests==2.27.1
-yesqa==1.3.0
