@@ -8,6 +8,7 @@
 ::msgcat::mcset mr "Name" "नाव"
 ::msgcat::mcset mr "Options" "पर्याय"
 ::msgcat::mcset mr "Output" "निकाल"
+::msgcat::mcset mr "Returns" "परतावा"
 ::msgcat::mcset mr "Run" "चालवा"
 ::msgcat::mcset mr "Show errno" "errno दाखवा"
 ::msgcat::mcset mr "Show GetLastError" "GetLastError दाखवा"
@@ -15,3 +16,4 @@
 ::msgcat::mcset mr "Tools" "उपकरण"
 ::msgcat::mcset mr "Type" "प्रकार"
 ::msgcat::mcset mr "Value" "मूल्य"
+::msgcat::mcset mr "View" "देखावा"

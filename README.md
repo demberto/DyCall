@@ -5,6 +5,7 @@
 [![MIT License][license-shield]][license-url]
 [![Python Versions][pyversions-shield]][pyversions-url]
 [![Package Version][package-version-shield]][package-version-url]
+[![security: bandit][bandit-shield]][bandit-url]
 [![Code Style: Black][code-style-shield]][code-style-url]
 
 <div align="center">
@@ -127,10 +128,9 @@ Check the [Adding Translations][adding-translations] section in the contributor'
 
 ## 🚀 Roadmap
 
-- [ ] Automatic call convention detection
-- [ ] Function prototype detection from header files or similar
-- [ ] Use a child process to execute, this ensures more stability
-- [ ] Documentation
+- [ ] Automatic call convention detection.
+- [ ] Function prototype detection from header files or similar.
+- [ ] Use a child process to execute, this ensures more stability.
 
 ## 🤝 Contributing
 
@@ -161,16 +161,18 @@ Additional acknowledgements have been made in the code.
 
 <!-- MARKDOWN LINKS AND IMAGES -->
 
-[integrity-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/integrity
-[publish-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/publish
-[license-shield]: https://img.shields.io/pypi/l/dycall
-[license-url]: https://github.com/demberto/DyCall/blob/master/LICENSE
-[pyversions-shield]: https://img.shields.io/pypi/pyversions/dycall
-[pyversions-url]: https://pypi.org/project/dycall
-[package-version-shield]: https://img.shields.io/pypi/v/dycall
-[package-version-url]: https://pypi.org/project/dycall
+[adding-translations]: https://github.com/demberto/DyCall/blob/master/CONTRIBUTING.md#adding-translations
+[bandit-shield]: https://img.shields.io/badge/security-bandit-yellow.svg
+[bandit-url]: https://github.com/PyCQA/bandit
 [code-style-shield]: https://img.shields.io/badge/code%20style-black-black
 [code-style-url]: https://github.com/psf/black
 [code-of-conduct]: https://github.com/demberto/DyCall/blob/master/CODE_OF_CONDUCT.md
 [contributor-guide]: https://github.com/demberto/DyCall/blob/master/CONTRIBUTING.md
-[adding-translations]: https://github.com/demberto/DyCall/blob/master/CONTRIBUTING.md#adding-translations
+[integrity-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/integrity
+[license-shield]: https://img.shields.io/pypi/l/dycall
+[license-url]: https://github.com/demberto/DyCall/blob/master/LICENSE
+[publish-status]: https://img.shields.io/github/workflow/status/demberto/DyCall/publish
+[pyversions-shield]: https://img.shields.io/pypi/pyversions/dycall
+[pyversions-url]: https://pypi.org/project/dycall
+[package-version-shield]: https://img.shields.io/pypi/v/dycall
+[package-version-url]: https://pypi.org/project/dycall

@@ -19,10 +19,6 @@ max-statements = 60
 disable = [
   "duplicate-code",
   "invalid-name",
-  "logging-too-many-args",
-  "missing-module-docstring",
-  "missing-class-docstring",
-  "missing-function-docstring",
   "too-many-ancestors",
   "too-many-instance-attributes",
   "too-many-arguments",
@@ -30,11 +26,7 @@ disable = [
   "too-many-branches",
   "too-many-locals",
   "too-many-statements",
-  "unspecified-encoding",
 ]
-
-[tool.pylint.LOGGING]
-logging-format-style = "new"
 
 # duplicate-code false positive: https://stackoverflow.com/a/30007053
 [tool.pylint.SIMILARITIES]

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """Changes a particular color in an image and overwrites it.
 
 Ref: https://stackoverflow.com/a/3850345

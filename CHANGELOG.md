@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.5] - 2022-03-27
+## [0.0.5] - 2022-03-29
 
 ### Added
 
@@ -13,6 +13,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Installed version of DyCall and its dependencies is displayed in **About**.
 - `publish` action automatically creates a release with changelogs from here.
 - Auto add/remove rows in **Exports** treeview when resized.
+- The code is now vastly more documented, almost no class or function is left.
 
 ### Changed
 

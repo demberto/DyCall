@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.demangler
+~~~~~~~~~~~~~~~~
+
+Contains `DemanglerWindow`.
+"""
+
 import logging
 
 import ttkbootstrap as tk
@@ -12,6 +20,14 @@ log = logging.getLogger(__name__)
 
 
 class DemanglerWindow(tk.Toplevel):
+    """A C++ symbol name demangler utility.
+
+    Found under **Tools** -> **Demangler** in the top menu.
+    Uses `dycall.util.demangle` to demangle the name.
+
+    TODO: Syntax highlighted demangled name using Pygments.
+    """
+
     def __init__(self, _: tk.Window):
         log.debug("Initialising")
         self.mangled_name = mangled_name = tk.StringVar()
@@ -56,12 +72,14 @@ class DemanglerWindow(tk.Toplevel):
         log.debug("Initialised")
 
     def set_state(self, *_):
+        """Toggles the state of the **Demangle** button based on **Name**."""
         if self.me.get():
             self.mb.configure(state="normal")
         else:
             self.mb.configure(state="disabled")
 
     def demangle(self):
+        """Tries to demangle **Name** and update the **Demangled** entry."""
         mangled = self.mangled_name.get()
         try:
             d = demangle(mangled)

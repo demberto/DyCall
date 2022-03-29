@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """Adds padding to a square image an resizes it back to original resolution.
 
 Use this for creating top menu icons. Resulting image is overwritten.

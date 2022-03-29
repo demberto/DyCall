@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.about
+~~~~~~~~~~~~
+
+Contains `AboutWindow`.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -22,6 +30,21 @@ log = logging.getLogger(__name__)
 
 
 class AboutWindow(tk.Toplevel):
+    """DyCall's about page.
+
+    Found under **Help** -> **About** in the top menu.
+    Only one instance of this can be open at a time due to its
+    singleton nature.
+
+    Shows:
+    - Name and installed version of package.
+    - Copyright.
+    - Hyperlink to GitHub repo.
+    - Names and installed versions of dependencies.
+    - Button to check for an updated version of DyCall.
+    - License notice.
+    """
+
     def __init__(self, _: tk.Window, is_opened: tk.BooleanVar):
         log.debug("Initialising")
         self.__is_opened = is_opened
@@ -36,6 +59,7 @@ class AboutWindow(tk.Toplevel):
         self.resizable(False, False)
         self.bind("<Escape>", lambda *_: self.destroy())
 
+        # Topbar to allow window dragging
         tf = ttk.Frame(self)
         self.cb = cb = ttk.Button(tf, text="🗙", command=lambda *_: self.destroy())
         cb.bind(
@@ -52,6 +76,7 @@ class AboutWindow(tk.Toplevel):
         tf.bind("<B1-Motion>", self.do_move)
         tf.pack(side="top", fill="x")
 
+        # Project name and version
         mf = ttk.Frame(self)
         ttk.Label(mf, text="DyCall", font=tk.font.Font(size=24)).pack(side="left")
         ttk.Label(
@@ -61,6 +86,7 @@ class AboutWindow(tk.Toplevel):
 
         ttk.Label(self, text="(c) demberto 2022").pack(pady=5)
 
+        # Repo link
         # https://stackoverflow.com/a/15216402
         self.__github = get_img("github.png")
         gb = ttk.Label(self, image=self.__github, cursor="hand2")
@@ -72,6 +98,7 @@ class AboutWindow(tk.Toplevel):
         )
         gb.pack(pady=5)
 
+        # Dependencies
         requirements: list[tuple[str, str]] = []
         for requirement in pkg_metadata.requires("dycall"):  # type: ignore
             package = requirement.split(">")[0]
@@ -93,6 +120,7 @@ class AboutWindow(tk.Toplevel):
             tv.insert("", "end", values=(package, version))
         tv.pack(pady=5, fill="x", padx=5)
 
+        # Update checker
         self.__ubt = tk.StringVar(value=MsgCat.translate("Check for updates"))
         self.__ub = ub = ttk.Button(
             self,
@@ -101,6 +129,7 @@ class AboutWindow(tk.Toplevel):
         )
         ub.pack(pady=10)
 
+        # License notice
         ll = ttk.Label(
             self,
             text=MsgCat.translate("DyCall is distributed under the MIT license"),
@@ -117,20 +146,24 @@ class AboutWindow(tk.Toplevel):
         log.debug("Initalised")
 
     def destroy(self) -> None:
+        """Resets singleton lock and exits."""
         self.__is_opened.set(False)
         return super().destroy()
 
     def start_move(self, event: tk.tk.Event):
+        """Window drag start handler."""
         # pylint: disable=attribute-defined-outside-init
         self.x = event.x
         self.y = event.y
 
     def stop_move(self, _):
+        """Window drag stop handler."""
         # pylint: disable=attribute-defined-outside-init
         self.x = None
         self.y = None
 
     def do_move(self, event: tk.tk.Event):
+        """Window dragging action handler."""
         deltax = event.x - self.x
         deltay = event.y - self.y
         x = self.winfo_x() + deltax
@@ -138,6 +171,8 @@ class AboutWindow(tk.Toplevel):
         self.geometry(f"+{x}+{y}")
 
     def check_for_updates(self):
+        """Synchronous update checker using GitHub API."""
+
         def reset_button():
             self.__ubt.set(MsgCat.translate("Check for updates"))
             self.__ub.configure(bootstyle="primary")

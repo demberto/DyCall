@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.runner
+~~~~~~~~~~~~~
+
+Contains `Runner`.
+"""
+
 from __future__ import annotations
 
 import ctypes
@@ -16,6 +24,13 @@ log = logging.getLogger(__name__)
 
 
 class Runner(threading.Thread):
+    """Executes an exported function in a separate thread.
+
+    Used in `FunctionFrame`. Exceptions and results are pushed into a queue.
+    The queues are then checked regularly until they are not empty in the UI
+    thread. This ensures that the UI doesn't get blocked.
+    """
+
     def __init__(
         self,
         exc: queue.Queue,
@@ -94,6 +109,7 @@ class Runner(threading.Thread):
         super().__init__()
 
     def run(self):
+        """Calculates the function prototype and operates with the queues."""
         try:
             if self.__argtypes:
                 prototype = self.__functype(self.__restype, *self.__argtypes)

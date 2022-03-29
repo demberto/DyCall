@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.exports
+~~~~~~~~~~~~~~
+
+Contains `ExportsFrame` and `ExportsTreeView`.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -18,6 +26,14 @@ log = logging.getLogger(__name__)
 
 
 class ExportsFrame(ttk.Labelframe):
+    """Contains **Exports** combobox and a button for `ExportsTreeView`.
+
+    Use command line argument `--exp` to select an export from the library on
+    launch. Combobox validates export name.
+
+    TODO: Combobox works like google search (auto-suggest, recents etc.)
+    """
+
     def __init__(
         self,
         root: tk.Window,
@@ -46,13 +62,12 @@ class ExportsFrame(ttk.Labelframe):
         self.__exports = exports
         self.__export_names: list[str] = []
 
-        cb_validator = self.register(self.cb_validate)
         self.cb = cb = ttk.Combobox(
             self,
             state="disabled",
             textvariable=selected_export,
             validate="focusout",
-            validatecommand=(cb_validator, "%P"),
+            validatecommand=(self.register(self.cb_validate), "%P"),
         )
         # ! cb.bind("<Return>", lambda *_: self.cb_validate)  # Doesn't work
         cb.bind("<<ComboboxSelected>>", self.cb_selected)
@@ -127,7 +142,6 @@ class ExportsFrame(ttk.Labelframe):
             self.__status.set(f"{num_exports} exports found")
             failed = []
             for exp in exports:
-
                 if isinstance(exp, PEExport):
                     if hasattr(exp, "exc"):
                         failed.append(exp.name)
@@ -162,6 +176,7 @@ class ExportsFrame(ttk.Labelframe):
         )
 
     def sort(self, *_):
+        """Sorts the list of export names and repopulates the combobox."""
         if self.__is_loaded.get():
             sorter = self.__sort_order.get()
             log.debug("Sorting w.r.t. %s", sorter)
@@ -175,6 +190,15 @@ class ExportsFrame(ttk.Labelframe):
 
 
 class ExportsTreeView(tk.Toplevel):
+    """Displays detailed information about all the exports of a library.
+
+    Following information is displayed:
+    - Address
+    - Name
+    - Demangled name (whenever available)
+    - Ordinal (Windows only)
+    """
+
     def __init__(self, exports: list[Export], lib_name: str):
         log.debug("Initialising")
         super().__init__(
@@ -219,7 +243,13 @@ class ExportsTreeView(tk.Toplevel):
         log.debug("Initialised")
 
     def resize(self, event: tk.tk.Event):
+        """Change the treeview's `pagesize` whenever this window is resized.
+
+        I came up with this because there is no way to show a vertical
+        scrollbar in/for the treeview.
+        """
         new_height = event.height
         if event.widget.widgetName == "toplevel" and new_height != self.__old_height:
+            # ! This is an expensive call, avoid it whenever possible
             self.__tv.pagesize = int(new_height) / 20
             self.__old_height = new_height

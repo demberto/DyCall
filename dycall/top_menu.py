@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.top_menu
+~~~~~~~~~~~~~~~
+
+Contains `TopMenu`.
+"""
+
 import collections
 import logging
 import platform
@@ -15,7 +23,29 @@ log = logging.getLogger(__name__)
 
 
 class TopMenu(tk.Menu):
-    # pylint: disable-next=too-many-locals
+    """DyCall's top menu.
+
+    Hierarchy:
+    - File
+        - Open Recents
+    - Options
+        - Language
+        - Theme
+        - OUT Mode
+        - Show GetLastError (Windows only)
+        - Show errno
+    - View
+        - Sort Exports By
+            - Name (ascending)
+            - Name (descending)
+    - Tools
+        - Demangler
+    - Help
+        - About
+
+    `F11` for toggling fullscreen.
+    """
+
     def __init__(
         self,
         root: tk.Window,
@@ -25,6 +55,7 @@ class TopMenu(tk.Menu):
         show_get_last_error: tk.BooleanVar,
         show_errno: tk.BooleanVar,
         about_opened: tk.BooleanVar,
+        theme: tk.StringVar,
         recents: collections.deque,
     ):
         super().__init__()
@@ -76,7 +107,9 @@ class TopMenu(tk.Menu):
         self.__theme_png = get_img("theme.png")
         for label in ("System", "Light", "Dark"):
             mot.add_radiobutton(
-                label=label, variable=root.cur_theme, command=root.set_theme
+                label=label,
+                variable=theme,
+                command=lambda: root.event_generate("<<ThemeChanged2>>"),
             )
         mo.add_cascade(
             menu=mot,
@@ -158,6 +191,11 @@ class TopMenu(tk.Menu):
         self.bind_all("<F1>", lambda *_: self.open_about())
 
     def change_lang(self):
+        """Instructs Tk to change the underlying locale.
+
+        Generates:
+            <<LanguageChanged>>: The UI is reinitialised by `dycall.app.App`.
+        """
         log.debug("Changing language")
         lc = self.__locale
         lc.set(Lang2LCID[self.__lang.get()])
@@ -165,7 +203,15 @@ class TopMenu(tk.Menu):
         self.__root.event_generate("<<LanguageChanged>>")
         log.info("Changed locale to '%s'", MsgCat.locale())
 
-    def update_recents(self, redraw=False):
+    def update_recents(self, redraw: bool = False):
+        """Clears (optionally) and repopulates **File** -> **Open Recents**.
+
+        Args:
+            redraw (bool, optional): Whether to clear the existing list of
+                recents. Defaults to False.
+
+        TODO: Something is wrong in this or elsewhere.
+        """
         if redraw:
             self.fop.delete(0, 9)
         for path in self.__recents:
@@ -175,6 +221,7 @@ class TopMenu(tk.Menu):
             )
 
     def open_about(self):
+        """Opens the **About** window in a singleton pattern."""
         if not self.__about_opened.get():
             self.__about_opened.set(True)
             AboutWindow(self.__root, self.__about_opened)

@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.function
+~~~~~~~~~~~~~~~
+
+Contains `FunctionFrame`.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -19,6 +27,19 @@ log = logging.getLogger(__name__)
 
 
 class FunctionFrame(ttk.Frame):
+    """
+
+    Command line arguments:
+        - `--conv` for **Calling Convention**.
+        - `--ret` for **Returns** (return type).
+        - `--rows-to-add` for empty rows to add to the **Arguments** table.
+
+    Contains:
+        - **Calling Convention** combobox (Windows only)
+        - **Returns** combobox
+        - **Arguments** table (referred below as tksheet also)
+    """
+
     def __init__(
         self,
         root: tk.Window,
@@ -59,7 +80,7 @@ class FunctionFrame(ttk.Frame):
 
         # Call convention
         if self.__is_windows:
-            cg = ttk.Labelframe(self, text="Calling Convention")
+            cg = ttk.Labelframe(self, text=MsgCat.translate("Calling Convention"))
             self.cc = cc = ttk.Combobox(
                 cg,
                 values=CALL_CONVENTIONS,
@@ -71,7 +92,7 @@ class FunctionFrame(ttk.Frame):
                 cc.current(0)  # CallConvention.cdecl
 
         # Return type
-        rg = ttk.Labelframe(self, text="Returns")
+        rg = ttk.Labelframe(self, text=MsgCat.translate("Returns"))
         self.rc = rc = ttk.Combobox(
             rg,
             values=PARAMETER_TYPES,
@@ -87,11 +108,11 @@ class FunctionFrame(ttk.Frame):
             self,
             text=f"{MsgCat.translate('Run')}\n(F5)",
             state="disabled",
-            command=self.run,
+            command=lambda *_: self.run(),
         )
 
         # Arguments table
-        self.ag = ag = ttk.Labelframe(self, text="Arguments")
+        self.ag = ag = ttk.Labelframe(self, text=MsgCat.translate("Arguments"))
         self.at = at = tksheet.Sheet(
             ag,
             headers=[MsgCat.translate("Type"), MsgCat.translate("Value")],
@@ -149,58 +170,8 @@ class FunctionFrame(ttk.Frame):
             "<<ToggleFunctionFrame>>", lambda event: self.set_state(event.state == 1)
         )
 
-    def table_end_insert_rows(self, event: NamedTuple = None, row: int = None):
-        if event is not None:
-            param1 = event[1]
-        else:
-            param1 = row
-        self.at.create_dropdown(
-            r=param1,
-            c=0,
-            set_value="uint32_t",
-            values=PARAMETER_TYPES,
-            redraw=True,
-            selection_function=self.table_dropdown_change,
-        )
-        self.at.set_cell_data(r=param1, c=1, value="0")
-
-    def table_end_edit_cell(self, event: NamedTuple):
-        row, col, action, text, *_ = event
-        if action != "Escape":
-            if col == 1:
-                self.table_validate(row, text)
-            else:
-                self.at.dehighlight_cells(row, 1)
-
-    def table_end_paste(self, event: NamedTuple):
-        _, (x, y), content = event
-        if isinstance(x, int):
-            row, col = x, y
-            if col == 1:
-                text = content[0][0]
-                self.table_validate(row, text)
-        elif isinstance(x, str):
-            what, which = x, y
-            if what == "column" and which == 1:
-                for idx, field in enumerate(content):
-                    # Idk why field is a list itself
-                    self.table_validate(idx, field[0])
-
-    def table_validate(self, row: int, text: str):
-        t = self.at.get_cell_data(row, 0)
-        try:
-            # bool & void have readonly cells, no need to validate
-            if t in ("float", "double"):
-                float(text)
-            elif t not in ("char", "char*", "wchar_t", "wchar_t*"):
-                int(text)
-        # Catch multiple exceptions: https://stackoverflow.com/a/6470452
-        except (TypeError, ValueError):
-            self.at.highlight_cells(row, 1, bg="red")
-        else:
-            self.at.dehighlight_cells(row, 1)
-
     def set_state(self, activate: bool = True):
+        """Toggles the state of subwidgets."""
         if activate:
             self.rc.configure(state="readonly")
             if self.__is_windows:
@@ -218,10 +189,77 @@ class FunctionFrame(ttk.Frame):
             self.at.disable_bindings()
             self.unbind_run_button()
 
+    def table_end_insert_rows(self, event: NamedTuple = None, row: int = None):
+        """Callback for tksheet's `end_insert_rows` binding."""
+        if event is not None:
+            param1 = event[1]
+        else:
+            param1 = row
+        self.at.create_dropdown(
+            r=param1,
+            c=0,
+            set_value="uint32_t",
+            values=PARAMETER_TYPES,
+            redraw=True,
+            selection_function=self.table_dropdown_change,
+        )
+        self.at.set_cell_data(r=param1, c=1, value="0")
+
+    def table_end_edit_cell(self, event: NamedTuple):
+        """Callback for tksheet's `end_edit_cell` binding."""
+        row, col, action, text, *_ = event
+        if action != "Escape":
+            if col == 1:
+                self.table_validate(row, text)
+            else:
+                self.at.dehighlight_cells(row, 1)
+
+    def table_end_paste(self, event: NamedTuple):
+        """Callback for tksheet's `end_paste` binding."""
+        _, (x, y), content = event
+        if isinstance(x, int):
+            row, col = x, y
+            if col == 1:
+                text = content[0][0]
+                self.table_validate(row, text)
+        elif isinstance(x, str):
+            what, which = x, y
+            if what == "column" and which == 1:
+                for idx, field in enumerate(content):
+                    # Idk why field is a list itself
+                    self.table_validate(idx, field[0])
+
+    def table_validate(self, row: int, text: str):
+        """Callback for tksheet's `end_insert_rows` binding."""
+        t = self.at.get_cell_data(row, 0)
+        try:
+            # bool & void have readonly cells, no need to validate
+            if t in ("float", "double"):
+                float(text)
+            elif t not in ("char", "char*", "wchar_t", "wchar_t*"):
+                int(text)
+        # Catch multiple exceptions: https://stackoverflow.com/a/6470452
+        except (TypeError, ValueError):
+            self.at.highlight_cells(row, 1, bg="red")
+        else:
+            self.at.dehighlight_cells(row, 1)
+
     def table_dropdown_change(self, event):
+        """Arguments' table dropdown selection callback.
+
+        This method defines the behavior of the **Value** column when new rows
+        are added to the table or existing one's **Type** is changed. Editing
+        is disabled for all dropdown boxes.
+
+        Behaviors:
+            bool: A True and False dropdown is created.
+            void: Editing is disabled and value is set to NULL.
+            float/double: Value is set to 0.0
+            character/string types: Value is cleared.
+            integer types: Value is set to 0
+        """
         # pylint: disable=no-else-return
         # pylint: disable=bare-except
-
         row, _, _, type_ = event
         t = self.at
 
@@ -251,6 +289,12 @@ class FunctionFrame(ttk.Frame):
             t.set_cell_data(row, 1, value="0")
 
     def process_queue(self):
+        """Checks the `RunResult` and exception queues for an element.
+
+        This function schedules itself to run every 100ms in the UI thread
+        until either one of the queues has an element, which also means that
+        the `dycall.runner.Runner` thread has finished.
+        """
         try:
             exc: Exception = self.__exc_q.get_nowait()
         except queue.Empty:
@@ -273,7 +317,13 @@ class FunctionFrame(ttk.Frame):
             self.activate_copy_button()
             self.rb.configure(state="normal")
 
-    def run(self, *_):
+    def run(self) -> None:
+        """Executes the function and updates the UI back with results.
+
+        This function acts as a bridge between the runner and the UI threads.
+        Invoked by **Run** button or `F5`.
+        """
+
         def handle_exc(e: Exception, status: str):
             log.exception(e)
             self.__exc_type.set(type(e).__name__)
@@ -320,14 +370,19 @@ class FunctionFrame(ttk.Frame):
         self.bind_run_button()
 
     # * Helpers
-    def activate_copy_button(self, state="normal", bootstyle="default"):
+    def activate_copy_button(
+        self, state: str = "normal", bootstyle: str = "default"
+    ) -> None:
+        """Activates and configures the bootstyle of the `CopyButton`."""
         self.__root.output.oc.configure(state=state, bootstyle=bootstyle)
 
-    def bind_run_button(self):
+    def bind_run_button(self) -> None:
+        """Binds the **Run** button to `F5`."""
         # pylint: disable=attribute-defined-outside-init
         log.debug("Run button binded to F5")
-        self.rb.bind_all("<F5>", self.run)
+        self.rb.bind_all("<F5>", lambda *_: self.run())
 
-    def unbind_run_button(self):
+    def unbind_run_button(self) -> None:
+        """Unbinds the **Run** button while a function is executing."""
         log.debug("Run button unbinded")
         self.rb.unbind_all("<F5>")

@@ -8,6 +8,7 @@
 ::msgcat::mcset hi "Name" "नाम"
 ::msgcat::mcset hi "Options" "विकल्प"
 ::msgcat::mcset hi "Output" "नतीजा"
+::msgcat::mcset hi "Returns" "प्रतिलाभ"
 ::msgcat::mcset hi "Run" "चलायें"
 ::msgcat::mcset hi "Show errno" "errno दिखाएँ"
 ::msgcat::mcset hi "Show GetLastError" "GetLastError दिखाएँ"
@@ -15,3 +16,4 @@
 ::msgcat::mcset hi "Tools" "उपकरण"
 ::msgcat::mcset hi "Type" "ढंग"
 ::msgcat::mcset hi "Value" "मूल्य"
+::msgcat::mcset hi "View" "दिखावट"

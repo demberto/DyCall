@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
+"""
+dycall.app
+~~~~~~~~~~
+
+Contains `App`.
+"""
+
 from __future__ import annotations
 
 import collections
@@ -6,15 +14,12 @@ import logging
 import os
 import pathlib
 import platform
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    try:
-        from typing import Final  # type: ignore
-    except ImportError:
-        from typing_extensions import Final  # type: ignore
+try:
+    from typing import Final  # type: ignore
+except ImportError:
+    from typing_extensions import Final  # type: ignore
 
-# pylint: disable=wrong-import-position
 import appdirs
 import darkdetect
 import easysettings
@@ -39,6 +44,35 @@ dirpath = pathlib.Path(__file__).parent.resolve()
 
 
 class App(tk.Window):  # pylint: disable=too-many-instance-attributes
+    """Welcome to DyCall!
+
+    Handles the creation of all subframes, virtual events and control variables.
+    Command line arguments are parsed if present and application configuration
+    is managed.
+
+    Most analogous to the "Controller" part of the MVC design pattern.
+
+    Events:
+        - <<LanguageChanged>>
+        - <<OutputSuccess>>
+        - <<OutputException>>
+        - <<PopulateExports>>
+        - <<SortExports>>
+        - <<ThemeChanged2>>: https://github.com/ragardner/tksheet/issues/111
+        - <<ToggleErrno>>
+        - <<ToggleExportsFrame>>
+        - <<ToggleFunctionFrame>>
+        - <<ToggleGetLastError>>
+        - <<UpdateRecents>>
+
+    Control variables:
+        about_opened (tk.BooleanVar): Whether `dycall.about.AboutWindow` is open.
+        is_loaded (tk.BooleanVar): Whether a library has been selected.
+        is_native (tk.BooleanVar): Whether loaded library is native.
+        is_running (tk.BooleanVar): Set to True when a function is executing
+            and False again after it completes execution. Defaults to False.
+    """
+
     def __init__(
         self,
         conv: str = CallConvention.Cdecl.value,
@@ -48,7 +82,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         rows: int = 0,
         lang: str = "",
         out_mode: bool = False,
-        hide_last_err: bool = False,
+        hide_gle: bool = False,
         hide_errno: bool = False,
     ) -> None:
         """DyCall entry point.
@@ -68,23 +102,14 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             lang (str, optional): The language used for displaying UI. Defaults to "".
             out_mode (bool, optional): Whether **OUT Mode** should be enabled.
                 Defaults to False.
-            hide_last_err (bool, optional): Hides and doesn't retrieve GetLastError
+            hide_gle (bool, optional): Hides and doesn't retrieve GetLastError
                 value shown in status bar. (Windows only)
             hide_errno (bool, optional): Hides and doesn't retrieve errno value
                 shown in status bar.
         """  # noqa: D403
         log.debug("Initialising")
-        self.__rows_to_add: Final = rows
-        self.__exports: list[Export] = []
-        self.__recents: Final[collections.deque] = collections.deque(maxlen=10)
 
-        # No need to save a preference in the config when
-        # DyCall is passed with it from the command line.
-        self.__dont_save_locale = False
-        self.__dont_save_out_mode = False
-        self.__dont_save_show_get_last_error = False
-        self.__dont_save_show_errno = False
-
+        # Set icon
         log.debug("Setting app icon")
         if platform.system() != "Windows":
             super().__init__(iconphoto=get_img_path("dycall.png"))
@@ -94,6 +119,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.iconbitmap(ico, ico)
         self.withdraw()
 
+        # Load config
         log.debug("Loading config")
         configdir = appdirs.user_config_dir("DyCall", "demberto")
         if not os.path.exists(configdir):
@@ -112,6 +138,14 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
                 "show_errno": True,
             },
         )
+
+        # No need to save a preference in the config when
+        # DyCall is passed with it from the command line.
+        self.__dont_save_locale = False
+        self.__dont_save_out_mode = False
+        self.__dont_save_show_get_last_error = False
+        self.__dont_save_show_errno = False
+
         if lang:
             locale_to_use = lang
             self.__dont_save_locale = True
@@ -122,7 +156,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__dont_save_out_mode = True
         else:
             out_mode_or_not = config["out_mode"]
-        if hide_last_err:
+        if hide_gle:
             show_get_last_error = False
             self.__dont_save_show_get_last_error = True
         else:
@@ -132,8 +166,8 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__dont_save_show_errno = True
         else:
             show_errno = config["show_errno"]
-        self.__recents.extend(config["recents"])
 
+        # Load translations
         # ! BUG: Tkinter doesn't understand Windows paths
         msgs_path = os.path.join(dirpath, "msgs").replace("\\", "/")
 
@@ -143,50 +177,40 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         log.debug("Found %d translation files", found)
         MsgCat.locale(locale_to_use)
 
-        self.arch = platform.architecture()[0]
-        self.title(self.__default_title)
-        self.minsize(width=450, height=600)
-        self.cur_theme = tk.StringVar(value=config["theme"])
-
-        # Set by picker
-        self.lib = None
-
-        # Modern menus
-        self.option_add("*tearOff", False)
-
-        self.__is_native = tk.BooleanVar()
-        self.__is_running = tk.BooleanVar(value=False)
-        self.__is_loaded = tk.BooleanVar(value=False)
-        self.__is_reinitialised = tk.BooleanVar(value=False)
-        self.__use_out_mode = tk.BooleanVar(value=out_mode_or_not)
-        self.__locale = tk.StringVar(value=locale_to_use)
-        self.__sort_order = tk.StringVar(value=SortOrder.NameAscending.value)
-        self.__library_path = tk.StringVar(value=lib)
-        self.__selected_export = tk.StringVar(value=exp)
-        self.__call_convention = tk.StringVar(value=conv)
-        self.__return_type = tk.StringVar(value=ret)
-        self.__output_text = tk.StringVar()
-        self.__status_text = tk.StringVar(value="Choose a library")
-        self.__exc_type = tk.StringVar()
-        self.__get_last_error = tk.IntVar()
-        self.__show_get_last_error = tk.BooleanVar(value=show_get_last_error)
-        self.__errno = tk.IntVar()
-        self.__show_errno = tk.BooleanVar(value=show_errno)
-        self.__about_opened = tk.BooleanVar(value=False)
+        # Control variables
+        self.__cur_theme: Final = tk.StringVar(value=config["theme"])
+        self.__is_native: Final = tk.BooleanVar()
+        self.__is_running: Final = tk.BooleanVar(value=False)
+        self.__is_loaded: Final = tk.BooleanVar(value=False)
+        self.__is_reinitialised: Final = tk.BooleanVar(value=False)
+        self.__use_out_mode: Final = tk.BooleanVar(value=out_mode_or_not)
+        self.__locale: Final = tk.StringVar(value=locale_to_use)
+        self.__sort_order: Final = tk.StringVar(value=SortOrder.NameAscending.value)
+        self.__lib_path: Final = tk.StringVar(value=lib)
+        self.__selected_export: Final = tk.StringVar(value=exp)
+        self.__call_convention: Final = tk.StringVar(value=conv)
+        self.__return_type: Final = tk.StringVar(value=ret)
+        self.__output_text: Final = tk.StringVar()
+        self.__status_text: Final = tk.StringVar(
+            value=MsgCat.translate("Choose a library")
+        )
+        self.__exc_type: Final = tk.StringVar()
+        self.__get_last_error: Final = tk.IntVar()
+        self.__show_get_last_error: Final = tk.BooleanVar(value=show_get_last_error)
+        self.__errno: Final = tk.IntVar()
+        self.__show_errno: Final = tk.BooleanVar(value=show_errno)
+        self.__about_opened: Final = tk.BooleanVar(value=False)
 
         # Events
         # ! Always use `self.__parent.event_generate`
-        self.event_add("<<LanguageChanged>>", "None")
-        self.event_add("<<OutputSuccess>>", "None")
-        self.event_add("<<OutputException>>", "None")
-        self.event_add("<<PopulateExports>>", "None")
-        self.event_add("<<SortExports>>", "None")
-        self.event_add("<<ToggleErrno>>", "None")
-        self.event_add("<<ToggleExportsFrame>>", "None")
-        self.event_add("<<ToggleFunctionFrame>>", "None")
-        self.event_add("<<ToggleGetLastError>>", "None")
-        self.event_add("<<UpdateRecents>>", "None")
         self.bind_all("<<LanguageChanged>>", lambda *_: self.refresh())
+        self.bind_all(
+            "<<SetWindowTitle>>",
+            lambda *_: self.title(
+                f"{self.__default_title} - {pathlib.Path(self.__lib_path.get()).name}"
+            ),
+        )
+        self.bind("<<ThemeChanged2>>", lambda *_: self.set_theme())
         self.bind(
             "<F11>",
             lambda *_: self.attributes(
@@ -202,7 +226,17 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             "write", lambda *_: self.event_generate("<<ToggleErrno>>")
         )
 
+        # Misc
+        self.__arch: Final = platform.architecture()[0]
+        self.__rows_to_add: Final = rows
+        self.__exports: list[Export] = []
+        self.__recents: Final[collections.deque] = collections.deque(
+            config["recents"], maxlen=10
+        )
+        self.title(self.__default_title)
+        self.minsize(width=450, height=600)
         self.geometry(config["geometry"])
+        self.option_add("*tearOff", False)  # Modern menus
         self.set_theme()
         self.init_widgets()
         self.deiconify()
@@ -210,7 +244,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
 
     @property
     def __default_title(self) -> str:
-        return f"DyCall ({self.arch})"
+        return f"DyCall ({self.__arch})"
 
     def init_widgets(self):
         """Sub-widgets are created and packed here.
@@ -221,6 +255,8 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         order in which they get constructed is essential, it must be ensured
         that no widget constructed first depends internally on a widget
         constructed later here.
+
+        Call this AFTER `set_theme` else **Arguments** table will mess up.
         """
         self.output = of = OutputFrame(
             self,
@@ -239,7 +275,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self,
             self.__call_convention,
             self.__return_type,
-            self.__library_path,
+            self.__lib_path,
             self.__selected_export,
             self.__output_text,
             self.__status_text,
@@ -261,18 +297,17 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__is_loaded,
             self.__is_native,
             self.__is_reinitialised,
-            self.__library_path,
+            self.__lib_path,
             self.__exports,
         )
         self.picker = pf = PickerFrame(
             self,
-            self.__library_path,
+            self.__lib_path,
             self.__selected_export,
             self.__output_text,
             self.__status_text,
             self.__is_loaded,
             self.__is_native,
-            self.__default_title,
             self.__exports,
             self.__recents,
         )
@@ -284,6 +319,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
             self.__show_get_last_error,
             self.__show_errno,
             self.__about_opened,
+            self.__cur_theme,
             self.__recents,
         )
 
@@ -314,7 +350,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
     def destroy(self):
         """Warns the user if he tries to close when an operation is running.
         Tries to save the app settings and proceeds to close the app.
-        """  # noqa: D205
+        """
         # ! This does't work at all
         is_running = self.__is_running.get()
         log.debug("Called with is_running=%s", is_running)
@@ -329,7 +365,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
                 return
 
         config = self.__config
-        config["theme"] = self.cur_theme.get()
+        config["theme"] = self.__cur_theme.get()
         config["geometry"] = self.geometry()
         config["recents"] = tuple(self.__recents)
         if not self.__dont_save_out_mode:
@@ -355,6 +391,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
 
     @property
     def centre_position(self):
+        """Calculates the center position w.r.t. the screen."""
         w_height = self.winfo_height()
         w_width = self.winfo_width()
         s_height = self.winfo_screenheight()
@@ -364,10 +401,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         return f"+{xpos}+{ypos}"
 
     def set_theme(self):
-        """Set's the theme used by DyCall."""
+        """Sets the theme used by DyCall."""
         log.debug("Setting theme")
 
-        theme = self.cur_theme.get()
+        theme = self.__cur_theme.get()
         if theme == "System":
             theme = darkdetect.theme()  # pylint: disable=assignment-from-none
 

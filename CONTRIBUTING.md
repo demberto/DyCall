@@ -23,7 +23,8 @@ To get started:
 4. Install dependencies:
 
    ```shell
-   python -m pip install -r dev-requirements.txt -c dev-constraints.txt
+   python -m pip install -r requirements-dev.txt -c constraints.txt
+   python -m pip install -r requirements.txt -c constraints.txt
    ```
 
 5. Install [tbump][tbump]. I don't include it in dependencies because it recommends
@@ -57,8 +58,12 @@ This allows the top level window class `App` to create such state variables and 
 them to the sub-frames via their constructors. This allows for a sub frame to change the
 contents of a widget inside another subframe without accessing the widget directly.
 
+Additionally, events are generated where the use of control variable doesn't apply.
+There are certain edge cases where events can't be used either due to Tkinter's
+implementation of `Event` class not allowing arbitrary data to be retreived.
+
 Apart from that, I have used LF line endings everywhere and tried to enforce it
-everywhere I can - `.editorconfig`, `.prettierrc.yaml` and `.gitattributes`
+everywhere I can - `.editorconfig` and `.gitattributes`
 
 ## Adding translations
 
