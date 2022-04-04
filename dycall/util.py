@@ -18,7 +18,7 @@ import ctypes
 import logging
 import pathlib
 import platform
-from typing import Callable, Union
+from typing import Callable, Optional, Union
 
 try:
     from typing import Final  # type: ignore
@@ -138,6 +138,11 @@ Lang2LCID: Final = {v: k for k, v in LCID2Lang.items()}
 
 # * Helpers
 
+SHOW_IMAGES = True
+"""`get_img_path` and `get_img` return None when this is False.
+
+Set to False when DyCall is run with the `--no-images` switch."""
+
 
 class _ImageFinder:
     """DyCall image finder.
@@ -176,16 +181,20 @@ class _ImageFinder:
             return tk.PhotoImage(data=img.read(), **self.__photo_image_kw)
 
 
-def get_img_path(name: str) -> str:
+def get_img_path(name: str) -> Optional[str]:
     """Returns the absolute path of an image."""
-    return _ImageFinder(name).path
+    if SHOW_IMAGES:
+        return _ImageFinder(name).path
+    return None
 
 
-def get_img(name: str, **kwargs) -> tk.PhotoImage:
+def get_img(name: str, **kwargs) -> Optional[tk.PhotoImage]:
     """Returns an image as a `tk.PhotoImage` object.
 
     Args:
         name (str): File name of image.
         kwargs: Additional arguments passed directly to `tk.PhotoImage`.
     """
-    return _ImageFinder(name, **kwargs).photo_image
+    if SHOW_IMAGES:
+        return _ImageFinder(name, **kwargs).photo_image
+    return None

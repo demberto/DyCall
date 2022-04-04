@@ -7,8 +7,21 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [0.0.6] - 2022-04-04
 
+**All the images got corrupted in v0.0.5. This makes the previous version as
+well as 0.0.4 unusable.** I should have tested better. How these images got
+corrupted is beyond me. In case it ever happens again, I am including a
+command-line option to run DyCall without loading any images.
+
+*Interestingly enough, the changes I made to repair the corrupted images
+disappeared when I staged them.*
+
+### Added
+
+- Command line option `--no-images`.
+
 ### Fixed
 
+- All corrupted images.
 - Added padding to the license text in the **About** window.
 - `--hide-errno` was mistakenly made a Windows only option instead of
   `--hide-gle`.

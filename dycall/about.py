@@ -88,8 +88,13 @@ class AboutWindow(tk.Toplevel):
 
         # Repo link
         # https://stackoverflow.com/a/15216402
-        self.__github = get_img("github.png")
-        gb = ttk.Label(self, image=self.__github, cursor="hand2")
+        self.__github_png = get_img("github.png")
+        gb = ttk.Label(self, cursor="hand2")
+        if self.__github_png:
+            gb.configure(image=self.__github_png)
+        else:
+            # Imageless mode
+            gb.configure(text="DyCall @ Github", foreground="green")
 
         # https://stackoverflow.com/a/68306781
         gb.bind(

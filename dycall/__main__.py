@@ -59,6 +59,11 @@ def main():
     ap.add_argument(
         "--hide-errno", help="Hides errno from the status bar", action="store_true"
     )
+    ap.add_argument(
+        "--no-images",
+        action="store_true",
+        help="Run without showing any images in the UI.",
+    )
     if is_windows:
         ap.add_argument(
             "--hide-gle",

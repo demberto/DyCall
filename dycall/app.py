@@ -28,6 +28,7 @@ from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.icons import Icon
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
+import dycall.util
 from dycall.exports import ExportsFrame
 from dycall.function import FunctionFrame
 from dycall.output import OutputFrame
@@ -43,7 +44,7 @@ log = logging.getLogger(__name__)
 dirpath = pathlib.Path(__file__).parent.resolve()
 
 
-class App(tk.Window):  # pylint: disable=too-many-instance-attributes
+class App(tk.Window):
     """Welcome to DyCall!
 
     Handles the creation of all subframes, virtual events and control variables.
@@ -84,6 +85,7 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         out_mode: bool = False,
         hide_gle: bool = False,
         hide_errno: bool = False,
+        no_images: bool = False,
     ) -> None:
         """DyCall entry point.
 
@@ -106,6 +108,8 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
                 value shown in status bar. (Windows only)
             hide_errno (bool, optional): Hides and doesn't retrieve errno value
                 shown in status bar.
+            no_images (bool, optional): Opens the DyCall GUI without loading
+                any images
         """  # noqa: D403
         log.debug("Initialising")
 
@@ -227,6 +231,14 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
         )
 
         # Misc
+        self.__no_images = no_images
+        if no_images:
+            log.debug(
+                "Images will not be shown. Run DyCall without "
+                "the '--no-images' option to see them."
+            )
+            # https://stackoverflow.com/a/3536638
+            dycall.util.SHOW_IMAGES = False
         self.__arch: Final = platform.architecture()[0]
         self.__rows_to_add: Final = rows
         self.__exports: list[Export] = []
@@ -244,7 +256,10 @@ class App(tk.Window):  # pylint: disable=too-many-instance-attributes
 
     @property
     def __default_title(self) -> str:
-        return f"DyCall ({self.__arch})"
+        title = f"DyCall ({self.__arch})"
+        if self.__no_images:
+            title += " [IMAGELESS MODE]"
+        return title
 
     def init_widgets(self):
         """Sub-widgets are created and packed here.
