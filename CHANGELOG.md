@@ -5,7 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.6] - 2022-04-04
+## [0.0.7] - 2022-04-04
+
+So, it turns out that the .gitattributes file was fucking it all up.
+See [this](https://stackoverflow.com/q/19411981) SO question for details.
+
+Previous releases have been yanked.
+
+### Removed
+
+- .gitattributes *Dare you return!*
+
+## [0.0.6] - 2022-04-04 [YANKED]
 
 **All the images got corrupted in v0.0.5. This makes the previous version as
 well as 0.0.4 unusable.** I should have tested better. How these images got
@@ -30,7 +41,7 @@ disappeared when I staged them.*
 
 - Redundant check in publish CI action.
 
-## [0.0.5] - 2022-03-29
+## [0.0.5] - 2022-03-29 [YANKED]
 
 ### Added
 
@@ -83,6 +94,7 @@ disappeared when I staged them.*
 
 Initial release.
 
+[0.0.7]: https://github.com/demberto/DyCall/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/demberto/DyCall/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/demberto/DyCall/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/demberto/DyCall/compare/v0.0.3...v0.0.4
