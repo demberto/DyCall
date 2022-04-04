@@ -57,13 +57,13 @@ def main():
     ap.add_argument("--lang", help="The language used by the interface", choices=LCIDS)
     ap.add_argument("--out-mode", help="Use 'out' mode", action="store_true")
     ap.add_argument(
-        "--hide-gle",
-        help="Hides GetLastError from the status bar",
-        action="store_true",
+        "--hide-errno", help="Hides errno from the status bar", action="store_true"
     )
     if is_windows:
         ap.add_argument(
-            "--hide-errno", help="Hides errno from the status bar", action="store_true"
+            "--hide-gle",
+            help="Hides GetLastError from the status bar",
+            action="store_true",
         )
 
     args = ap.parse_args()

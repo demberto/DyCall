@@ -10,6 +10,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Fixed
 
 - Added padding to the license text in the **About** window.
+- `--hide-errno` was mistakenly made a Windows only option instead of
+  `--hide-gle`.
+
+### Removed
+
+- Redundant check in publish CI action.
+
 ## [0.0.5] - 2022-03-29
 
 ### Added
