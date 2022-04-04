@@ -83,6 +83,7 @@ disappeared when I staged them.*
 
 Initial release.
 
+[0.0.6]: https://github.com/demberto/DyCall/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/demberto/DyCall/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/demberto/DyCall/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/demberto/DyCall/releases/tag/v0.0.3

@@ -3,15 +3,12 @@ include *.txt
 include *.yaml
 include .editorconfig
 include .vscode/settings.json
-include constraints-dev.txt
 include py.typed
-indlude requirements-dev.txt
-include requirements.txt
 include tox.ini
 include VERSION
 include dycall/desktop-app.json
 include dycall/img/*.*
-include ext/*.*
-include scripts/*.py
-include tests/*.py
 include dycall/msgs/*.msg
+include ext/*.*
+recursive-include scripts *.py
+recursive-include tests *.py
