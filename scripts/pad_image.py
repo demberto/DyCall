@@ -12,7 +12,7 @@ import pathlib
 from PIL import Image
 
 
-def main(img: pathlib.Path, padding: int):
+def main(img: pathlib.Path, padding: int):  # noqa
     with Image.open(img) as image:
         width, height = image.size
         resized = image.resize((width - (padding * 2), height - (padding * 2)))

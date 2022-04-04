@@ -23,7 +23,7 @@ def get_rgba(color: str) -> tuple[int, int, int, int]:
     return (red, green, blue, 255)
 
 
-def main(path: pathlib.Path, src: str, dst: str):
+def main(path: pathlib.Path, src: str, dst: str):  # noqa
     src_rgba = get_rgba(src)
     dst_rgba = get_rgba(dst)
     with Image.open(path) as img:

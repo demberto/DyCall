@@ -12,7 +12,7 @@ def test_default_config(create_app, tmp_path):
     create_app.destroy()
     settings_file = tmp_path / "settings.json"
     assert settings_file.is_file()
-    with open(settings_file) as fp:
+    with open(settings_file, encoding="utf-8") as fp:
         s: dict = json.load(fp)
     assert set(s.keys()) == set(
         (

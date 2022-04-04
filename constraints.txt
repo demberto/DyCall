@@ -18,10 +18,10 @@ flake8==4.0.1
 flake8-docstrings==1.6.0
 flake8-typing-imports==1.12.0
 isort==5.10.1
-mypy==0.931
+mypy==0.942
 pre-commit==2.15.0
 pylint==2.12.2
 pytest==7.0.1
-setup-cfg-fmt==1.20.0
+setup-cfg-fmt==1.20.1
 tox==3.24.5
-types-requests==2.27.1
+types-requests==2.27.16

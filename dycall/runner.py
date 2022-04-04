@@ -83,16 +83,15 @@ class Runner(threading.Thread):
             self.__functype = ctypes.WINFUNCTYPE
         else:
             if self.__is_windows:
-                self.__handle = ctypes.CDLL(
+                self.__handle = ctypes.CDLL(  # type: ignore
                     lib_path,
                     use_errno=show_errno,
                     use_last_error=show_get_last_error,
-                )  # type: ignore
+                )
             else:
-                self.__handle = ctypes.CDLL(
-                    lib_path,
-                    use_errno=show_errno,
-                )  # type: ignore
+                self.__handle = ctypes.CDLL(  # type: ignore
+                    lib_path, use_errno=show_errno
+                )
             self.__functype = ctypes.CFUNCTYPE
         if name_or_ord.startswith("@"):
             self.__name_or_ord = int(name_or_ord[1:])  # type: Union[str, int]
