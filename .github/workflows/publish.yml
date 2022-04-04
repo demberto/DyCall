@@ -28,8 +28,6 @@ jobs:
       - name: Get changelog for release
         id: changelog
         uses: mindsers/changelog-reader-action@v2
-        with:
-          validation_depth: 10
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
