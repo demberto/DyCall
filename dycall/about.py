@@ -135,15 +135,15 @@ class AboutWindow(tk.Toplevel):
             text=MsgCat.translate("DyCall is distributed under the MIT license"),
             font=tk.font.Font(size=9),
         )
-        ll.pack(side="bottom")
+        ll.pack(side="bottom", pady=(0, 5))
 
         width = max(ll.winfo_reqwidth(), 250)
-        self.geometry(f"{width}x400")
+        self.geometry(f"{width}x410")
         self.place_window_center()
         self.deiconify()
         self.focus_set()
         self.grab_set()
-        log.debug("Initalised")
+        log.debug("Initialised")
 
     def destroy(self) -> None:
         """Resets singleton lock and exits."""
