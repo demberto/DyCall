@@ -19,13 +19,14 @@ from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 from ttkbootstrap.tableview import Tableview
 
+from dycall._widgets import TrLabelFrame
 from dycall.types import Export, PEExport
 from dycall.util import StaticThemedTooltip, get_img
 
 log = logging.getLogger(__name__)
 
 
-class ExportsFrame(ttk.Labelframe):
+class ExportsFrame(TrLabelFrame):
     """Contains **Exports** combobox and a button for `ExportsTreeView`.
 
     Use command line argument `--exp` to select an export from the library on
@@ -49,7 +50,7 @@ class ExportsFrame(ttk.Labelframe):
     ):
         log.debug("Initalising")
 
-        super().__init__(text=MsgCat.translate("Exports"))
+        super().__init__(text="Exports")
         self.__root = root
         self.__selected_export = selected_export
         self.__sort_order = sort_order
@@ -62,26 +63,23 @@ class ExportsFrame(ttk.Labelframe):
         self.__exports = exports
         self.__export_names: list[str] = []
 
-        self.cb = cb = ttk.Combobox(
+        self.cb = ttk.Combobox(
             self,
             state="disabled",
             textvariable=selected_export,
             validate="focusout",
             validatecommand=(self.register(self.cb_validate), "%P"),
         )
-        # ! cb.bind("<Return>", lambda *_: self.cb_validate)  # Doesn't work
-        cb.bind("<<ComboboxSelected>>", self.cb_selected)
+        # ! self.cb.bind("<Return>", lambda *_: self.cb_validate)  # Doesn't work
+        self.cb.bind("<<ComboboxSelected>>", self.cb_selected)
 
         self.__list_png = get_img("list.png")
-        self.lb = lb = ttk.Label(self, image=self.__list_png)
-        lb.bind(
-            "<Enter>",
-            lambda *_: StaticThemedTooltip(lb, MsgCat.translate("List of exports")),
-        )
-        lb.bind("<ButtonRelease-1>", lambda *_: status.set("Load a library first!"))
+        self.lb = ttk.Label(self, image=self.__list_png)
+        self.lb.bind("<Enter>", lambda *_: StaticThemedTooltip(self.lb, "List of exports"))
+        self.lb.bind("<ButtonRelease-1>", lambda *_: status.set("Load a library first!"))
 
-        lb.pack(padx=(0, 5), pady=5, side="right")
-        cb.pack(fill="x", padx=5, pady=5)
+        self.lb.pack(padx=(0, 5), pady=5, side="right")
+        self.cb.pack(fill="x", padx=5, pady=5)
 
         self.bind_all("<<PopulateExports>>", lambda *_: self.set_cb_values())
         self.bind_all(

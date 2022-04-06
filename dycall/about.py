@@ -24,6 +24,7 @@ from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
+from dycall._widgets import TrLabel
 from dycall.util import get_img
 
 log = logging.getLogger(__name__)
@@ -135,9 +136,9 @@ class AboutWindow(tk.Toplevel):
         ub.pack(pady=10)
 
         # License notice
-        ll = ttk.Label(
+        ll = TrLabel(
             self,
-            text=MsgCat.translate("DyCall is distributed under the MIT license"),
+            text="DyCall is distributed under the MIT license",
             font=tk.font.Font(size=9),
         )
         ll.pack(side="bottom", pady=(0, 5))
@@ -147,7 +148,7 @@ class AboutWindow(tk.Toplevel):
         self.place_window_center()
         self.deiconify()
         self.focus_set()
-        self.grab_set()
+        # self.grab_set()
         log.debug("Initialised")
 
     def destroy(self) -> None:

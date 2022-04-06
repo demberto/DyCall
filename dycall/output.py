@@ -11,14 +11,15 @@ import logging
 
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
-from ttkbootstrap.localization import MessageCatalog as MsgCat
+from ttkbootstrap.localization import MessageCatalog
 
+from dycall._widgets import TrLabelFrame
 from dycall.util import CopyButton
 
 log = logging.getLogger(__name__)
 
 
-class OutputFrame(ttk.Labelframe):
+class OutputFrame(TrLabelFrame):
     """Shows the value returned/exception caused by calling the exported function.
 
     Contains a readonly `Entry` to display text and a copy button alongside.
@@ -26,9 +27,11 @@ class OutputFrame(ttk.Labelframe):
 
     def __init__(self, _: tk.Window, output: tk.StringVar, exc_type: tk.StringVar):
         log.debug("Initialising")
-        title = MsgCat.translate("Output")
-        super().__init__(text=title)
-        self.bind_all("<<OutputSuccess>>", lambda *_: self.configure(text=title))
+        super().__init__(text="Output")
+        self.bind_all(
+            "<<OutputSuccess>>",
+            lambda *_: self.configure(text=MessageCatalog.translate("Output")),
+        )
         self.bind_all(
             "<<OutputException>>", lambda _: self.configure(text=exc_type.get())
         )

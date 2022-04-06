@@ -34,6 +34,7 @@ except ImportError:
 import tktooltip
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
+from ttkbootstrap.localization import MessageCatalog
 
 log = logging.getLogger(__name__)
 
@@ -118,7 +119,7 @@ class StaticThemedTooltip(tktooltip.ToolTip):
             bg = "#1c1c1c"
         super().__init__(
             widget=widget,
-            msg=msg,
+            msg=MessageCatalog.translate(msg),
             delay=delay,
             follow=False,
             fg=fg,

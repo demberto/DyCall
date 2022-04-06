@@ -17,8 +17,9 @@ from typing import NamedTuple
 import tksheet
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
-from ttkbootstrap.localization import MessageCatalog as MsgCat
+from ttkbootstrap.localization import MessageCatalog
 
+from dycall._widgets import TrLabelFrame
 from dycall.runner import Runner
 from dycall.types import CALL_CONVENTIONS, PARAMETER_TYPES, Marshaller, RunResult
 from dycall.util import DARK_THEME
@@ -79,8 +80,7 @@ class FunctionFrame(ttk.Frame):
         self.__is_windows = platform.system() == "Windows"
 
         # Call convention
-        if self.__is_windows:
-            cg = ttk.Labelframe(self, text=MsgCat.translate("Calling Convention"))
+            cg = TrLabelFrame(self, text="Calling Convention")
             self.cc = cc = ttk.Combobox(
                 cg,
                 values=CALL_CONVENTIONS,
@@ -92,7 +92,7 @@ class FunctionFrame(ttk.Frame):
                 cc.current(0)  # CallConvention.cdecl
 
         # Return type
-        rg = ttk.Labelframe(self, text=MsgCat.translate("Returns"))
+        rg = TrLabelFrame(self, "Returns")
         self.rc = rc = ttk.Combobox(
             rg,
             values=PARAMETER_TYPES,
@@ -103,19 +103,22 @@ class FunctionFrame(ttk.Frame):
         if not returns.get():
             rc.current(7)  # ParameterType.i (int32_t)
 
-        # Run
+        # Run button
         self.rb = rb = ttk.Button(
             self,
-            text=f"{MsgCat.translate('Run')}\n(F5)",
+            text=f"{MessageCatalog.translate('Run')}\n(F5)",
             state="disabled",
             command=lambda *_: self.run(),
         )
 
         # Arguments table
-        self.ag = ag = ttk.Labelframe(self, text=MsgCat.translate("Arguments"))
+        self.ag = ag = TrLabelFrame(self, "Arguments")
         self.at = at = tksheet.Sheet(
             ag,
-            headers=[MsgCat.translate("Type"), MsgCat.translate("Value")],
+            headers=[
+                MessageCatalog.translate("Type"),
+                MessageCatalog.translate("Value"),
+            ],
             empty_horizontal=20,
             row_height=25,
             data=self.__args,

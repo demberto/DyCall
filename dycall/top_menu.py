@@ -7,12 +7,14 @@ dycall.top_menu
 Contains `TopMenu`.
 """
 
+from __future__ import annotations
+
 import collections
 import logging
 import platform
 
 import ttkbootstrap as tk
-from ttkbootstrap.localization import MessageCatalog as MsgCat
+from ttkbootstrap.localization import MessageCatalog
 
 from dycall.about import AboutWindow
 from dycall.demangler import DemanglerWindow
@@ -22,7 +24,25 @@ from dycall.util import Lang2LCID, LCID2Lang, get_img
 log = logging.getLogger(__name__)
 
 
-class TopMenu(tk.Menu):
+class _Menu(tk.Menu):
+    def add_cascade(self, label: str, underline: int = 0, **kwargs):
+        super().add_cascade(
+            label=MessageCatalog.translate(label),
+            underline=underline,
+            **kwargs,
+        )
+
+    def add_command(self, label: str, **kwargs):
+        super().add_command(label=MessageCatalog.translate(label), **kwargs)
+
+    def add_checkbutton(self, label: str, **kwargs):
+        super().add_checkbutton(label=MessageCatalog.translate(label), **kwargs)
+
+    def add_radiobutton(self, label: str, **kwargs):
+        super().add_radiobutton(label=MessageCatalog.translate(label), **kwargs)
+
+
+class TopMenu(_Menu):
     """DyCall's top menu.
 
     Hierarchy:
@@ -66,13 +86,13 @@ class TopMenu(tk.Menu):
         self.__lang = tk.StringVar(value=LCID2Lang[locale.get()])
 
         # File
-        self.fo = fo = tk.Menu()
-        self.add_cascade(menu=fo, label="File", underline=0)
+        self.fo = _Menu()
+        self.add_cascade(label="File", menu=self.fo)
 
         # File -> Open Recent
-        self.fop = fop = tk.Menu()
+        self.fop = fop = _Menu()
         self.__clock_png = get_img("clock.png")
-        fo.add_cascade(
+        self.fo.add_cascade(
             menu=fop,
             label="Open Recent",
             underline=5,
@@ -83,11 +103,11 @@ class TopMenu(tk.Menu):
         self.update_recents()
 
         # Options
-        self.mo = mo = tk.Menu()
-        self.add_cascade(menu=mo, label=MsgCat.translate("Options"), underline=0)
+        self.mo = _Menu()
+        self.add_cascade(label="Options", menu=self.mo)
 
         # Options -> Language
-        self.mol = mol = tk.Menu(mo)
+        self.mol = mol = _Menu(self.mo)
         self.__translate_png = get_img("translate.png")
         for lang in LCID2Lang.values():
             mol.add_radiobutton(
@@ -95,36 +115,38 @@ class TopMenu(tk.Menu):
                 variable=self.__lang,
                 command=self.change_lang,
             )
-        mo.add_cascade(
+        self.mo.add_cascade(
+            label="Language",
             menu=mol,
-            label=MsgCat.translate("Language"),
             image=self.__translate_png,
             compound="left",
         )
 
         # Options -> Theme
-        self.mot = mot = tk.Menu(mo)
+        self.mot = _Menu(self.mo)
         self.__theme_png = get_img("theme.png")
         for label in ("System", "Light", "Dark"):
-            mot.add_radiobutton(
+            self.mot.add_radiobutton(
                 label=label,
                 variable=theme,
                 command=lambda: root.event_generate("<<ThemeChanged2>>"),
             )
-        mo.add_cascade(
-            menu=mot,
-            label=MsgCat.translate("Theme"),
+        self.mo.add_cascade(
+            label="Theme",
+            menu=self.mot,
             image=self.__theme_png,
             compound="left",
         )
 
         # Options -> OUT mode
-        mo.add_checkbutton(label=MsgCat.translate("OUT Mode"), variable=outmode)
+        self.mo.add_checkbutton(label="OUT Mode", variable=outmode)
 
         # Options -> Show GetLastError
         if platform.system() == "Windows":
             mo.add_checkbutton(
                 label=MsgCat.translate("Show GetLastError"),
+            self.mo.add_checkbutton(
+                label="Show GetLastError",
                 variable=show_get_last_error,
                 command=lambda: root.event_generate(
                     "<<ToggleGetLastError>>", state=int(show_get_last_error.get())
@@ -132,8 +154,8 @@ class TopMenu(tk.Menu):
             )
 
         # Options -> Show errno
-        mo.add_checkbutton(
-            label=MsgCat.translate("Show errno"),
+        self.mo.add_checkbutton(
+            label="Show errno",
             variable=show_errno,
             command=lambda: root.event_generate(
                 "<<ToggleErrno>>", state=int(show_errno.get())
@@ -141,11 +163,11 @@ class TopMenu(tk.Menu):
         )
 
         # View
-        self.vt = vt = tk.Menu()
-        self.add_cascade(menu=vt, label=MsgCat.translate("View"), underline=0)
+        self.vt = _Menu()
+        self.add_cascade(label="View", menu=self.vt)
 
         # View -> Sort Exports By
-        self.vse = vse = tk.Menu()
+        self.vse = _Menu()
         self.__sort_png = get_img("sort.png")
         self.__sort_name_asc_png = get_img("sort_name_asc.png")
         self.__sort_name_desc_png = get_img("sort_name_desc.png")
@@ -154,30 +176,30 @@ class TopMenu(tk.Menu):
             self.__sort_name_desc_png,
         )
         for sorter, img in zip(SortOrder, sorter_imgs):
-            vse.add_radiobutton(
-                label=MsgCat.translate(sorter.value),
+            self.vse.add_radiobutton(
+                label=sorter.value,
                 variable=sort_order,
                 command=lambda: root.event_generate("<<SortExports>>"),
                 image=img,
                 compound="left",
             )
-        vt.add_cascade(
-            menu=vse,
-            label=MsgCat.translate("Sort Exports By"),
+        self.vt.add_cascade(
+            menu=self.vse,
+            label="Sort Exports By",
             image=self.__sort_png,
             compound="left",
         )
 
         # Tools
-        self.mt = mt = tk.Menu()
-        self.add_cascade(menu=mt, label=MsgCat.translate("Tools"), underline=0)
+        self.mt = mt = _Menu()
+        self.add_cascade(menu=mt, label="Tools", underline=0)
 
         # Tools -> Demangler
         mt.add_command(label="Demangler", command=lambda *_: DemanglerWindow(root))
 
         # Help
-        self.mh = mh = tk.Menu()
-        self.add_cascade(menu=mh, label=MsgCat.translate("Help"), underline=0)
+        self.mh = mh = _Menu()
+        self.add_cascade(menu=mh, label="Help", underline=0)
 
         # Help -> About
         self.__info_png = get_img("info.png")
@@ -186,7 +208,7 @@ class TopMenu(tk.Menu):
             command=lambda *_: self.open_about(),
             compound="left",
             image=self.__info_png,
-            label=MsgCat.translate("About"),
+            label="About",
         )
         self.bind_all("<F1>", lambda *_: self.open_about())
 
@@ -196,21 +218,19 @@ class TopMenu(tk.Menu):
         Generates:
             <<LanguageChanged>>: The UI is reinitialised by `dycall.app.App`.
         """
-        log.debug("Changing language")
         lc = self.__locale
         lc.set(Lang2LCID[self.__lang.get()])
         MsgCat.locale(lc.get())
-        self.__root.event_generate("<<LanguageChanged>>")
+            self.__root.event_generate("<<LanguageChanged>>")
         log.info("Changed locale to '%s'", MsgCat.locale())
 
+    # TODO: #1 Something is wrong in this or elsewhere.
     def update_recents(self, redraw: bool = False):
         """Clears (optionally) and repopulates **File** -> **Open Recents**.
 
         Args:
             redraw (bool, optional): Whether to clear the existing list of
                 recents. Defaults to False.
-
-        TODO: Something is wrong in this or elsewhere.
         """
         if redraw:
             self.fop.delete(0, 9)

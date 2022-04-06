@@ -14,6 +14,7 @@ from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
+from dycall._widgets import TrLabel, TrButton
 from dycall.util import CopyButton, DemangleError, demangle
 
 log = logging.getLogger(__name__)
@@ -45,12 +46,12 @@ class DemanglerWindow(tk.Toplevel):
         self.rowconfigure(0, minsize=45, weight=1)
         self.rowconfigure(1, minsize=45, weight=1)
 
-        self.ml = ml = ttk.Label(self, text=MsgCat.translate("Name"))
+        self.ml = ml = TrLabel(self, text="Name")
         self.me = me = ttk.Entry(self, textvariable=mangled_name)
-        self.mb = mb = ttk.Button(
+        self.mb = mb = TrButton(
             self, text="Demangle", command=self.demangle, state="disabled"
         )
-        self.dl = dl = ttk.Label(self, text="Demangled")
+        self.dl = dl = TrLabel(self, text="Demangled")
         self.de = de = ttk.Entry(
             self, textvariable=demangled_name, state="readonly", font="TkFixedFont"
         )
