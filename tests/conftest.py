@@ -8,8 +8,8 @@ import pytest
 from dycall.app import App
 
 
-@pytest.fixture
-def create_app(monkeypatch, tmp_path):
+@pytest.fixture()
+def create_app(monkeypatch: pytest.MonkeyPatch, tmp_path) -> App:
     """Instantiates DyCall with a monkeypatched config dir."""
 
     def mock_config_dir(*_):

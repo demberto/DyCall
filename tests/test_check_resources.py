@@ -2,11 +2,13 @@
 
 """Tests for images and translations."""
 
-from pathlib import Path
+import csv
+import hashlib
+import pathlib
 
 from dycall.util import LCIDS
 
-root = Path(__file__).parent.parent.resolve()
+root = pathlib.Path(__file__).parent.parent.resolve()
 
 
 def test_check_translations():
@@ -21,7 +23,7 @@ def test_check_translations():
     lcids = list(LCIDS)
     lcids.remove("en")
     for lcid in lcids:
-        msg = Path(msgs / f"{lcid}.msg")
+        msg = pathlib.Path(msgs / f"{lcid}.msg")
         assert msg.is_file()
         with open(msg, encoding="utf-8") as fp:
             for line in fp.readlines():
@@ -30,19 +32,11 @@ def test_check_translations():
                 assert locale == lcid
 
 
-def test_check_images():
-    """Checks whether all the images used by DyCall are present in the package."""
-    imgs = root / "dycall/img"
-    for img in (
-        "clock.png",
-        "dycall.ico",
-        "dycall.png",
-        "github.png",
-        "info.png",
-        "sort.png",
-        "sort_name_asc.png",
-        "sort_name_desc.png",
-        "theme.png",
-        "translate.png",
-    ):
-        assert Path(imgs / img).is_file()
+def test_verify_images():
+    """Verifies the MD5 checksum of all images in `dycall/img` folder."""
+    csvpath = root / "tests" / "img_checksums.csv"
+    with open(csvpath, newline="", encoding="utf-8") as fp:
+        for filename, md5 in csv.reader(fp):
+            imgpath = root / "dycall" / "img" / filename
+            with open(imgpath, "rb") as img:
+                assert hashlib.md5(img.read()).hexdigest() == md5

@@ -9,6 +9,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 Seems that the repo needs to be renormalised as well. Another wasted releases,
 damn it!
+
+### Added
+
+- Checksums of all the images are verified, *just in case*.
+
 So, it turns out that the .gitattributes file was fucking it all up.
 See [this](https://stackoverflow.com/q/19411981) SO question for details.
 
@@ -96,6 +101,7 @@ disappeared when I staged them.*
 
 Initial release.
 
+[0.0.8]: https://github.com/demberto/DyCall/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/demberto/DyCall/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/demberto/DyCall/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/demberto/DyCall/compare/v0.0.4...v0.0.5

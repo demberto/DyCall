@@ -12,3 +12,4 @@ include dycall/msgs/*.msg
 include ext/*.*
 recursive-include scripts *.py
 recursive-include tests *.py
+recursive-include tests *.csv
