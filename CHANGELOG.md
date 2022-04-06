@@ -18,6 +18,10 @@ damn it!
 
 - `publish` action is dependant on `integrity` action, no more nuked releases.
 
+### Fixed
+
+- Widgets are not reconstructed if the new and old language are same.
+
 ## [0.0.7] - 2022-04-04 [YANKED]
 
 So, it turns out that the .gitattributes file was fucking it all up.

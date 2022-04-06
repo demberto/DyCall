@@ -217,10 +217,13 @@ class TopMenu(_Menu):
             <<LanguageChanged>>: The UI is reinitialised by `dycall.app.App`.
         """
         lc = self.__locale
-        lc.set(Lang2LCID[self.__lang.get()])
-        MsgCat.locale(lc.get())
+        newlc = Lang2LCID[self.__lang.get()]
+        if lc.get() != newlc:
+            log.debug("Changing locale")
+            lc.set(newlc)
+            MessageCatalog.locale(lc.get())
             self.__root.event_generate("<<LanguageChanged>>")
-        log.info("Changed locale to '%s'", MsgCat.locale())
+            log.info("Changed locale to '%s'", MessageCatalog.locale())
 
     # TODO: #1 Something is wrong in this or elsewhere.
     def update_recents(self, redraw: bool = False):
