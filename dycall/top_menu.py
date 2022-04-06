@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# pylint: disable=arguments-renamed
 
 """
 dycall.top_menu
@@ -24,10 +25,10 @@ log = logging.getLogger(__name__)
 
 
 class _Menu(tk.Menu):
-    def add_cascade(self, label: str, underline: int = 0, **kwargs):
+    def add_cascade(self, label: str, **kwargs):
         super().add_cascade(
             label=MessageCatalog.translate(label),
-            underline=underline,
+            underline=kwargs.pop("underline", 0),
             **kwargs,
         )
 

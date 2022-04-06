@@ -8,16 +8,16 @@ def _tr(t: str) -> str:
     return MessageCatalog.translate(t)
 
 
-class TrButton(ttk.Button):
+class _TrButton(ttk.Button):
     def __init__(self, master=None, text: str = "", **kwargs):
         super().__init__(master=master, text=_tr(text), **kwargs)
 
 
-class TrLabel(ttk.Label):
+class _TrLabel(ttk.Label):
     def __init__(self, master=None, text: str = "", **kwargs):
         super().__init__(master=master, text=_tr(text), **kwargs)
 
 
-class TrLabelFrame(ttk.Labelframe):
+class _TrLabelFrame(ttk.Labelframe):
     def __init__(self, master=None, text: str = "", **kwargs):
         super().__init__(master=master, text=_tr(text), **kwargs)

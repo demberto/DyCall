@@ -19,14 +19,14 @@ from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 from ttkbootstrap.tableview import Tableview
 
-from dycall._widgets import TrLabelFrame
+from dycall._widgets import _TrLabelFrame
 from dycall.types import Export, PEExport
 from dycall.util import StaticThemedTooltip, get_img
 
 log = logging.getLogger(__name__)
 
 
-class ExportsFrame(TrLabelFrame):
+class ExportsFrame(_TrLabelFrame):
     """Contains **Exports** combobox and a button for `ExportsTreeView`.
 
     Use command line argument `--exp` to select an export from the library on

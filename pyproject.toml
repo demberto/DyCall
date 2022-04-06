@@ -12,12 +12,11 @@ ignore_missing_imports = true
 [tool.pylint.MASTER]
 jobs = 0 # Faster
 
-[tool.pylint.DESIGN]
-max-statements = 60
-
 [tool.pylint.'MESSAGE_CONTROL']
 disable = [
   "duplicate-code",
+  # Ignore redundant messages: https://pylint.pycqa.org/en/latest/faq.html
+  "fixme",
   "invalid-name",
   "missing-function-docstring",
   "too-many-ancestors",
@@ -27,6 +26,8 @@ disable = [
   "too-many-branches",
   "too-many-locals",
   "too-many-statements",
+  "unused-import",
+  "wrong-import-order"
 ]
 
 # duplicate-code false positive: https://stackoverflow.com/a/30007053

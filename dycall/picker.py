@@ -19,9 +19,8 @@ import lief
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
-from ttkbootstrap.localization import MessageCatalog as MsgCat
 
-from dycall._widgets import TrButton
+from dycall._widgets import _TrButton
 from dycall.types import ELFExport, Export, PEExport
 
 log = logging.getLogger(__name__)
@@ -75,7 +74,7 @@ class PickerFrame(ttk.Labelframe):
         self.le.pack(fill="x", expand=True, side="left", padx=5, pady=5)
 
         # Button to invoke file picker
-        self.fb = TrButton(self, text="Browse", command=self.browse)
+        self.fb = _TrButton(self, text="Browse", command=self.browse)
         self.fb.pack(side="right", padx=(0, 5), pady=5)
 
         if lib_path.get():

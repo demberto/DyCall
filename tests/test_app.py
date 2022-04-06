@@ -5,9 +5,6 @@
 from __future__ import annotations
 
 import json
-import platform
-
-import pytest
 
 from dycall.app import App
 
@@ -35,13 +32,13 @@ def test_default_config(create_app: App, tmp_path):
     )
 
 
-def test_non_windows(create_app: App, monkeypatch: pytest.MonkeyPatch):
-    """Checks DyCall's behaviour when it is not running on WIndows.
+# def test_non_windows(create_app: App, monkeypatch: pytest.MonkeyPatch):
+#     """Checks DyCall's behaviour when it is not running on WIndows.
 
-    This includes checking the absence of:
-    - `--call-conv` and `--hide-gle` command line options.
-    - **Calling Convention** combobox.
-    - **Options** -> **Show GetLastError** menu option.
-    - GetLastError label in status bar.
-    """
-    monkeypatch.setattr(platform, "system", "")
+#     This includes checking the absence of:
+#     - `--call-conv` and `--hide-gle` command line options.
+#     - **Calling Convention** combobox.
+#     - **Options** -> **Show GetLastError** menu option.
+#     - GetLastError label in status bar.
+#     """
+#     monkeypatch.setattr(platform, "system", "")

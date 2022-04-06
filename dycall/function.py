@@ -18,7 +18,7 @@ import ttkbootstrap as tk
 from ttkbootstrap import ttk
 from ttkbootstrap.localization import MessageCatalog
 
-from dycall._widgets import TrLabelFrame
+from dycall._widgets import _TrLabelFrame
 from dycall.runner import Runner
 from dycall.types import CALL_CONVENTIONS, PARAMETER_TYPES, Marshaller, RunResult
 from dycall.util import DARK_THEME
@@ -81,7 +81,7 @@ class FunctionFrame(ttk.Frame):
 
         # Call convention
         if is_windows:
-            cg = TrLabelFrame(self, text="Calling Convention")
+            cg = _TrLabelFrame(self, text="Calling Convention")
             self.cc = cc = ttk.Combobox(
                 cg,
                 values=CALL_CONVENTIONS,
@@ -93,7 +93,7 @@ class FunctionFrame(ttk.Frame):
                 cc.current(0)  # CallConvention.cdecl
 
         # Return type
-        rg = TrLabelFrame(self, "Returns")
+        rg = _TrLabelFrame(self, "Returns")
         self.rc = rc = ttk.Combobox(
             rg,
             values=PARAMETER_TYPES,
@@ -113,7 +113,7 @@ class FunctionFrame(ttk.Frame):
         )
 
         # Arguments table
-        self.ag = ag = TrLabelFrame(self, "Arguments")
+        self.ag = ag = _TrLabelFrame(self, "Arguments")
         self.at = at = tksheet.Sheet(
             ag,
             headers=[

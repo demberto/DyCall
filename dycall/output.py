@@ -13,13 +13,13 @@ import ttkbootstrap as tk
 from ttkbootstrap import ttk
 from ttkbootstrap.localization import MessageCatalog
 
-from dycall._widgets import TrLabelFrame
+from dycall._widgets import _TrLabelFrame
 from dycall.util import CopyButton
 
 log = logging.getLogger(__name__)
 
 
-class OutputFrame(TrLabelFrame):
+class OutputFrame(_TrLabelFrame):
     """Shows the value returned/exception caused by calling the exported function.
 
     Contains a readonly `Entry` to display text and a copy button alongside.

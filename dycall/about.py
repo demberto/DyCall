@@ -24,7 +24,7 @@ from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.localization import MessageCatalog as MsgCat
 
-from dycall._widgets import TrLabel
+from dycall._widgets import _TrLabel
 from dycall.util import get_img
 
 log = logging.getLogger(__name__)
@@ -136,7 +136,7 @@ class AboutWindow(tk.Toplevel):
         ub.pack(pady=10)
 
         # License notice
-        ll = TrLabel(
+        ll = _TrLabel(
             self,
             text="DyCall is distributed under the MIT license",
             font=tk.font.Font(size=9),
