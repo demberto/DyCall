@@ -5,10 +5,18 @@
 from __future__ import annotations
 
 import json
+import platform
+
+import pytest
+
+from dycall.app import App
 
 
-def test_default_config(create_app, tmp_path):
-    """Tests the configuration file saved on first exit."""
+def test_default_config(create_app: App, tmp_path):
+    """Tests the configuration file saved on first exit.
+
+    Since `create_app` is destroyed here, this test should run at the end.
+    """
     create_app.destroy()
     settings_file = tmp_path / "settings.json"
     assert settings_file.is_file()
@@ -25,3 +33,15 @@ def test_default_config(create_app, tmp_path):
             "show_get_last_error",
         )
     )
+
+
+def test_non_windows(create_app: App, monkeypatch: pytest.MonkeyPatch):
+    """Checks DyCall's behaviour when it is not running on WIndows.
+
+    This includes checking the absence of:
+    - `--call-conv` and `--hide-gle` command line options.
+    - **Calling Convention** combobox.
+    - **Options** -> **Show GetLastError** menu option.
+    - GetLastError label in status bar.
+    """
+    monkeypatch.setattr(platform, "system", "")

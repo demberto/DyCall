@@ -245,6 +245,7 @@ class App(tk.Window):
         self.__recents: Final[collections.deque] = collections.deque(
             config["recents"], maxlen=10
         )
+        self.__is_windows: Final = platform.system() == "Windows"
         self.title(self.__default_title)
         self.minsize(width=450, height=600)
         self.geometry(config["geometry"])
@@ -273,20 +274,21 @@ class App(tk.Window):
 
         Call this AFTER `set_theme` else **Arguments** table will mess up.
         """
-        self.output = of = OutputFrame(
+        self.output = OutputFrame(
             self,
             self.__output_text,
             self.__exc_type,
         )
-        self.status_bar = sf = StatusBarFrame(
+        self.status_bar = StatusBarFrame(
             self,
             self.__status_text,
             self.__get_last_error,
             self.__show_get_last_error,
             self.__errno,
             self.__show_errno,
+            self.__is_windows,
         )
-        self.function = ff = FunctionFrame(
+        self.function = FunctionFrame(
             self,
             self.__call_convention,
             self.__return_type,
@@ -302,8 +304,9 @@ class App(tk.Window):
             self.__errno,
             self.__show_errno,
             self.__rows_to_add,
+            self.__is_windows,
         )
-        self.exports = ef = ExportsFrame(
+        self.exports = ExportsFrame(
             self,
             self.__selected_export,
             self.__sort_order,
@@ -315,7 +318,7 @@ class App(tk.Window):
             self.__lib_path,
             self.__exports,
         )
-        self.picker = pf = PickerFrame(
+        self.picker = PickerFrame(
             self,
             self.__lib_path,
             self.__selected_export,
@@ -326,7 +329,7 @@ class App(tk.Window):
             self.__exports,
             self.__recents,
         )
-        self.top_menu = tm = TopMenu(
+        self.top_menu = TopMenu(
             self,
             self.__use_out_mode,
             self.__locale,
@@ -336,14 +339,15 @@ class App(tk.Window):
             self.__about_opened,
             self.__cur_theme,
             self.__recents,
+            self.__is_windows,
         )
 
-        pf.pack(fill="x", padx=5)
-        ef.pack(fill="x", padx=5)
-        ff.pack(fill="both", expand=True)  # Padding handled by the frame
-        of.pack(fill="x", padx=5)
-        sf.pack(fill="x")
-        self["menu"] = tm
+        self.picker.pack(fill="x", padx=5)
+        self.exports.pack(fill="x", padx=5)
+        self.function.pack(fill="both", expand=True)  # Padding handled by the frame
+        self.output.pack(fill="x", padx=5)
+        self.status_bar.pack(fill="x")
+        self["menu"] = self.top_menu
 
     def refresh(self):
         """Called when the interace language is changed to reflect the changes.

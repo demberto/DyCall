@@ -10,7 +10,6 @@ Contains `FunctionFrame`.
 from __future__ import annotations
 
 import logging
-import platform
 import queue
 from typing import NamedTuple
 
@@ -58,6 +57,7 @@ class FunctionFrame(ttk.Frame):
         errno: tk.IntVar,
         show_errno: tk.BooleanVar,
         rows_to_add: int,
+        is_windows: bool,
     ):
         super().__init__()
         self.__root = root
@@ -77,9 +77,10 @@ class FunctionFrame(ttk.Frame):
         self.__res_q = queue.Queue()  # type: ignore
         self.__exc_q = queue.Queue()  # type: ignore
         self.__args: list[list[str]] = []
-        self.__is_windows = platform.system() == "Windows"
+        self.__is_windows = is_windows
 
         # Call convention
+        if is_windows:
             cg = TrLabelFrame(self, text="Calling Convention")
             self.cc = cc = ttk.Combobox(
                 cg,
@@ -144,12 +145,12 @@ class FunctionFrame(ttk.Frame):
                 at.insert_row()
                 self.table_end_insert_rows(row=row_index)
 
-        if self.__is_windows:
+        if is_windows:
             cc.grid(sticky="ew", padx=5, pady=5)
         rc.grid(sticky="ew", padx=5, pady=5)
         at.grid(sticky="nsew", padx=5, pady=5)
 
-        if self.__is_windows:
+        if is_windows:
             cg.grid(row=0, column=0, sticky="ew", padx=5)
             rg.grid(row=0, column=1, sticky="ew")
             rb.grid(row=0, column=2, padx=5)
@@ -160,10 +161,10 @@ class FunctionFrame(ttk.Frame):
 
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
-        if self.__is_windows:
+        if is_windows:
             self.columnconfigure(1, weight=1)
 
-        if self.__is_windows:
+        if is_windows:
             cg.columnconfigure(0, weight=1)
         rg.columnconfigure(0, weight=1)
         ag.rowconfigure(0, weight=1)

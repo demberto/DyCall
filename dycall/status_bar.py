@@ -9,7 +9,6 @@ Contains `StatusBarFrame`.
 
 import logging
 import os
-import platform
 
 try:
     import win32api
@@ -45,12 +44,12 @@ class StatusBarFrame(ttk.Frame):
         show_get_last_error: tk.BooleanVar,
         errno: tk.IntVar,
         show_errno: tk.BooleanVar,
+        is_windows: bool,
     ):
         log.debug("Initialising")
         super().__init__()
         self.__show_get_last_error = show_get_last_error
         self.__show_errno = show_errno
-        is_windows = platform.system() == "Windows"
 
         # Status
         self.sb = sb = ttk.Label(self, textvariable=status)

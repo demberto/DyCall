@@ -75,8 +75,12 @@ class ExportsFrame(TrLabelFrame):
 
         self.__list_png = get_img("list.png")
         self.lb = ttk.Label(self, image=self.__list_png)
-        self.lb.bind("<Enter>", lambda *_: StaticThemedTooltip(self.lb, "List of exports"))
-        self.lb.bind("<ButtonRelease-1>", lambda *_: status.set("Load a library first!"))
+        self.lb.bind(
+            "<Enter>", lambda *_: StaticThemedTooltip(self.lb, "List of exports")
+        )
+        self.lb.bind(
+            "<ButtonRelease-1>", lambda *_: status.set("Load a library first!")
+        )
 
         self.lb.pack(padx=(0, 5), pady=5, side="right")
         self.cb.pack(fill="x", padx=5, pady=5)

@@ -12,9 +12,8 @@ import logging
 import ttkbootstrap as tk
 from ttkbootstrap import ttk
 from ttkbootstrap.dialogs import Messagebox
-from ttkbootstrap.localization import MessageCatalog as MsgCat
 
-from dycall._widgets import TrLabel, TrButton
+from dycall._widgets import TrButton, TrLabel
 from dycall.util import CopyButton, DemangleError, demangle
 
 log = logging.getLogger(__name__)

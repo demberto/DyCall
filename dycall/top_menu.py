@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import collections
 import logging
-import platform
 
 import ttkbootstrap as tk
 from ttkbootstrap.localization import MessageCatalog
@@ -77,6 +76,7 @@ class TopMenu(_Menu):
         about_opened: tk.BooleanVar,
         theme: tk.StringVar,
         recents: collections.deque,
+        is_windows: bool,
     ):
         super().__init__()
         self.__root = root
@@ -142,9 +142,7 @@ class TopMenu(_Menu):
         self.mo.add_checkbutton(label="OUT Mode", variable=outmode)
 
         # Options -> Show GetLastError
-        if platform.system() == "Windows":
-            mo.add_checkbutton(
-                label=MsgCat.translate("Show GetLastError"),
+        if is_windows:
             self.mo.add_checkbutton(
                 label="Show GetLastError",
                 variable=show_get_last_error,
