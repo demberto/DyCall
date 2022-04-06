@@ -14,6 +14,12 @@ damn it!
 
 - Checksums of all the images are verified, *just in case*.
 
+### Changed
+
+- `publish` action is dependant on `integrity` action, no more nuked releases.
+
+## [0.0.7] - 2022-04-04 [YANKED]
+
 So, it turns out that the .gitattributes file was fucking it all up.
 See [this](https://stackoverflow.com/q/19411981) SO question for details.
 
